@@ -30,6 +30,7 @@ export default function FloatingChat({ currentUserName }: FloatingChatProps) {
     checkPartnerStatus()
     if (isOpen) {
       fetchMessages()
+      markMessagesAsRead() // Marcar como leídos al abrir
     }
     
     // Actualizar cada 10 segundos
@@ -47,6 +48,24 @@ export default function FloatingChat({ currentUserName }: FloatingChatProps) {
 
     return () => clearInterval(interval)
   }, [isOpen])
+
+  const markMessagesAsRead = async () => {
+    try {
+      // Marcar como leídos todos los mensajes que NO son del usuario actual
+      const { error } = await supabase
+        .from('love_messages')
+        .update({ is_read: true })
+        .eq('is_read', false)
+        .neq('sender_name', currentUserName || '')
+
+      if (error) throw error
+      
+      // Actualizar el contador de no leídos
+      setUnreadCount(0)
+    } catch (error) {
+      console.error('Error al marcar mensajes como leídos:', error)
+    }
+  }
 
   const checkUnreadMessages = async () => {
     try {

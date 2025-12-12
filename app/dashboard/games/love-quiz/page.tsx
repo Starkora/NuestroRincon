@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import FloatingChat from '@/components/FloatingChat'
 
-const questions = [
+const defaultQuestions = [
   {
     id: 1,
     question: "¿Cuál es el color favorito de tu pareja?",
@@ -63,12 +63,15 @@ export default function LoveQuizGame() {
   const [loading, setLoading] = useState(true)
   const [currentPersonName, setCurrentPersonName] = useState('')
   const [partnerName, setPartnerName] = useState('')
-  const [gameState, setGameState] = useState<'intro' | 'playing' | 'results'>('intro')
+  const [gameState, setGameState] = useState<'intro' | 'playing' | 'results' | 'manage'>('intro')
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [person1Answers, setPerson1Answers] = useState<string[]>([])
   const [person2Answers, setPerson2Answers] = useState<string[]>([])
   const [currentAnswer, setCurrentAnswer] = useState('')
   const [round, setRound] = useState<1 | 2>(1)
+  const [questions, setQuestions] = useState(defaultQuestions)
+  const [newQuestion, setNewQuestion] = useState('')
+  const [newCategory, setNewCategory] = useState('Gustos Básicos')
   const router = useRouter()
 
   useEffect(() => {
@@ -154,6 +157,32 @@ export default function LoveQuizGame() {
     return "¡Es hora de conocerse mejor! 💘"
   }
 
+  const addCustomQuestion = () => {
+    if (!newQuestion.trim()) return
+    
+    const newQ = {
+      id: questions.length + 1,
+      question: newQuestion.trim(),
+      category: newCategory
+    }
+    
+    setQuestions([...questions, newQ])
+    setNewQuestion('')
+    setNewCategory('Gustos Básicos')
+  }
+
+  const removeQuestion = (id: number) => {
+    if (questions.length <= 5) {
+      alert('Debe haber al menos 5 preguntas')
+      return
+    }
+    setQuestions(questions.filter(q => q.id !== id))
+  }
+
+  const resetToDefault = () => {
+    setQuestions(defaultQuestions)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center">
@@ -217,12 +246,20 @@ export default function LoveQuizGame() {
               </ol>
             </div>
 
-            <button
-              onClick={startGame}
-              className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-4 rounded-xl font-semibold text-lg transition shadow-lg hover:shadow-xl"
-            >
-              Comenzar el Test
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={startGame}
+                className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-4 rounded-xl font-semibold text-lg transition shadow-lg hover:shadow-xl"
+              >
+                Comenzar el Test
+              </button>
+              <button
+                onClick={() => setGameState('manage')}
+                className="bg-white hover:bg-gray-50 text-red-600 px-6 py-4 rounded-xl font-semibold border-2 border-red-200 transition cursor-pointer"
+              >
+                ✏️ Preguntas
+              </button>
+            </div>
           </div>
         )}
 
@@ -379,6 +416,110 @@ export default function LoveQuizGame() {
               >
                 Volver a Juegos
               </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Manage Questions Screen */}
+        {gameState === 'manage' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-white rounded-3xl shadow-2xl p-8">
+              <h2 className="text-3xl font-bold text-red-900 mb-4">✏️ Gestionar Preguntas</h2>
+              <p className="text-gray-700 mb-6">
+                Personaliza las preguntas del juego. Puedes agregar nuevas preguntas o eliminar las existentes (mínimo 5).
+              </p>
+              
+              {/* Add New Question */}
+              <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 mb-6">
+                <h3 className="font-bold text-red-900 mb-4">Agregar Nueva Pregunta</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Pregunta</label>
+                    <input
+                      type="text"
+                      value={newQuestion}
+                      onChange={(e) => setNewQuestion(e.target.value)}
+                      placeholder="¿Cuál es...?"
+                      className="w-full p-3 rounded-xl border-2 border-red-200 focus:border-red-500 focus:outline-none text-gray-900"
+                      maxLength={200}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+                    <select
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      className="w-full p-3 rounded-xl border-2 border-red-200 focus:border-red-500 focus:outline-none text-gray-900"
+                    >
+                      <option value="Gustos Básicos">Gustos Básicos</option>
+                      <option value="Emocional">Emocional</option>
+                      <option value="Personalidad">Personalidad</option>
+                      <option value="Recuerdos">Recuerdos</option>
+                      <option value="Sueños">Sueños</option>
+                    </select>
+                  </div>
+                  <button
+                    onClick={addCustomQuestion}
+                    disabled={!newQuestion.trim()}
+                    className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-3 rounded-xl font-semibold transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ➕ Agregar Pregunta
+                  </button>
+                </div>
+              </div>
+
+              {/* Current Questions */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-red-900">Preguntas Actuales ({questions.length})</h3>
+                  <button
+                    onClick={resetToDefault}
+                    className="text-sm text-red-600 hover:text-red-800 font-semibold"
+                  >
+                    🔄 Restaurar Predeterminadas
+                  </button>
+                </div>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {questions.map((q) => (
+                    <div key={q.id} className="bg-white border-2 border-gray-200 rounded-xl p-4 flex items-start gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-semibold px-2 py-1 bg-red-100 text-red-700 rounded-full">
+                            {q.category}
+                          </span>
+                        </div>
+                        <p className="text-gray-900">{q.question}</p>
+                      </div>
+                      <button
+                        onClick={() => removeQuestion(q.id)}
+                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition"
+                        title="Eliminar pregunta"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setGameState('intro')}
+                  className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-4 rounded-xl font-semibold transition shadow-lg"
+                >
+                  ✓ Guardar y Volver
+                </button>
+                <button
+                  onClick={() => setGameState('intro')}
+                  className="bg-white hover:bg-gray-50 text-red-600 px-6 py-4 rounded-xl font-semibold border-2 border-red-200 transition"
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
         )}

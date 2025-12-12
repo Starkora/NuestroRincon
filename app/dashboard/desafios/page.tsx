@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import toast, { Toaster } from 'react-hot-toast'
+import FloatingChat from '@/components/FloatingChat'
 
 interface Challenge {
   id: string
   title: string
   description: string | null
-  challenge_type: 'daily' | 'weekly' | 'monthly' | 'custom'
+  challenge_type: 'monthly' | 'custom' | 'milestone'
   start_date: string
   end_date: string | null
   progress: number
@@ -25,11 +27,12 @@ export default function DesafiosPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [currentPersonName, setCurrentPersonName] = useState('')
   
   // Form states
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [challengeType, setChallengeType] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>('weekly')
+  const [challengeType, setChallengeType] = useState<'monthly' | 'custom' | 'milestone'>('monthly')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [target, setTarget] = useState(10)
@@ -38,6 +41,11 @@ export default function DesafiosPage() {
   useEffect(() => {
     if (user) {
       fetchChallenges()
+      const currentPerson = localStorage.getItem('current_person')
+      const personName = currentPerson === 'person1' 
+        ? user.user_metadata?.person1_name 
+        : user.user_metadata?.person2_name
+      setCurrentPersonName(personName || 'Usuario')
     }
   }, [user])
 
@@ -61,14 +69,48 @@ export default function DesafiosPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Validar campos obligatorios
+    if (!title.trim()) {
+      toast.error('Por favor ingresa un título para el desafío', {
+        duration: 3000,
+        position: 'top-center',
+      })
+      return
+    }
+    
+    if (!startDate) {
+      toast.error('Por favor selecciona una fecha de inicio', {
+        duration: 3000,
+        position: 'top-center',
+      })
+      return
+    }
+    
+    if (!endDate) {
+      toast.error('Por favor selecciona una fecha de fin', {
+        duration: 3000,
+        position: 'top-center',
+      })
+      return
+    }
+    
+    // Validar que la fecha de fin sea después de la fecha de inicio
+    if (new Date(endDate) < new Date(startDate)) {
+      toast.error('La fecha de fin debe ser posterior a la fecha de inicio', {
+        duration: 3000,
+        position: 'top-center',
+      })
+      return
+    }
+    
     try {
       if (editingId) {
         // Update existing challenge
         const { error } = await supabase
           .from('challenges')
           .update({
-            title,
-            description,
+            title: title.trim(),
+            description: description.trim() || null,
             challenge_type: challengeType,
             start_date: startDate,
             end_date: endDate,
@@ -85,8 +127,8 @@ export default function DesafiosPage() {
           .insert([
             {
               user_id: user?.id,
-              title,
-              description,
+              title: title.trim(),
+              description: description.trim() || null,
               challenge_type: challengeType,
               start_date: startDate,
               end_date: endDate,
@@ -103,7 +145,7 @@ export default function DesafiosPage() {
       // Reset form
       setTitle('')
       setDescription('')
-      setChallengeType('weekly')
+      setChallengeType('monthly')
       setStartDate('')
       setEndDate('')
       setTarget(10)
@@ -111,9 +153,17 @@ export default function DesafiosPage() {
       setShowForm(false)
       setEditingId(null)
       fetchChallenges()
+      toast.success(editingId ? 'Desafío actualizado exitosamente' : 'Desafío creado exitosamente', {
+        duration: 3000,
+        position: 'top-center',
+        icon: '🎯',
+      })
     } catch (error) {
       console.error('Error al guardar desafío:', error)
-      alert('Error al guardar el desafío')
+      toast.error('Error al guardar el desafío. Intenta nuevamente.', {
+        duration: 4000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -140,9 +190,16 @@ export default function DesafiosPage() {
 
       if (error) throw error
       fetchChallenges()
+      toast.success('Desafío eliminado', {
+        duration: 2000,
+        position: 'top-center',
+      })
     } catch (error) {
       console.error('Error al eliminar desafío:', error)
-      alert('Error al eliminar el desafío')
+      toast.error('Error al eliminar el desafío', {
+        duration: 3000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -166,8 +223,17 @@ export default function DesafiosPage() {
       }
 
       fetchChallenges()
+      toast.success('Progreso actualizado', {
+        duration: 2000,
+        position: 'top-center',
+        icon: '📈',
+      })
     } catch (error) {
       console.error('Error al actualizar progreso:', error)
+      toast.error('Error al actualizar el progreso', {
+        duration: 3000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -234,8 +300,16 @@ export default function DesafiosPage() {
       }
 
       fetchChallenges()
+      toast.success('Desafío eliminado', {
+        duration: 2000,
+        position: 'top-center',
+      })
     } catch (error) {
-      console.error('Error al cambiar estado:', error)
+      console.error('Error al eliminar desafío:', error)
+      toast.error('Error al eliminar el desafío', {
+        duration: 3000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -245,22 +319,16 @@ export default function DesafiosPage() {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'daily':
-        return (
-          <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-        )
-      case 'weekly':
-        return (
-          <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        )
       case 'monthly':
         return (
           <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        )
+      case 'milestone':
+        return (
+          <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
           </svg>
         )
       default:
@@ -274,9 +342,9 @@ export default function DesafiosPage() {
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'daily': return 'Diario'
-      case 'weekly': return 'Semanal'
       case 'monthly': return 'Mensual'
+      case 'milestone': return 'Hito/Logro'
+      case 'custom': return 'Personalizado'
       default: return 'Personalizado'
     }
   }
@@ -304,6 +372,29 @@ export default function DesafiosPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
+      <Toaster
+        toastOptions={{
+          style: {
+            background: '#fff',
+            color: '#363636',
+            padding: '16px',
+            borderRadius: '10px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-purple-200">
         <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -328,7 +419,7 @@ export default function DesafiosPage() {
                 setEditingId(null)
                 setTitle('')
                 setDescription('')
-                setChallengeType('weekly')
+                setChallengeType('monthly')
                 setStartDate('')
                 setEndDate('')
                 setTarget(10)
@@ -356,7 +447,7 @@ export default function DesafiosPage() {
             <h2 className="text-xl font-bold text-purple-900 mb-4">
               {editingId ? 'Editar Desafío' : 'Nuevo Desafío'}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Título *
@@ -365,7 +456,6 @@ export default function DesafiosPage() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  required
                   placeholder="Ej: Enviar mensajes de amor diarios"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                 />
@@ -394,9 +484,8 @@ export default function DesafiosPage() {
                     onChange={(e) => setChallengeType(e.target.value as any)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                   >
-                    <option value="daily">Diario</option>
-                    <option value="weekly">Semanal</option>
                     <option value="monthly">Mensual</option>
+                    <option value="milestone">Hito/Logro</option>
                     <option value="custom">Personalizado</option>
                   </select>
                 </div>
@@ -409,7 +498,6 @@ export default function DesafiosPage() {
                     type="number"
                     value={target}
                     onChange={(e) => setTarget(parseInt(e.target.value))}
-                    required
                     min="1"
                     placeholder="10"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
@@ -426,7 +514,6 @@ export default function DesafiosPage() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    required
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                   />
                 </div>
@@ -452,7 +539,6 @@ export default function DesafiosPage() {
                   type="number"
                   value={rewardPoints}
                   onChange={(e) => setRewardPoints(parseInt(e.target.value))}
-                  required
                   min="1"
                   placeholder="10"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
@@ -618,6 +704,9 @@ export default function DesafiosPage() {
           )}
         </div>
       </div>
+      
+      {/* Chat flotante */}
+      <FloatingChat currentUserName={currentPersonName} />
     </div>
   )
 }

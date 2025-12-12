@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
+import toast, { Toaster } from 'react-hot-toast'
+import FloatingChat from '@/components/FloatingChat'
 
 interface Reminder {
   id: string
@@ -23,6 +25,7 @@ export default function RecordatoriosPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [currentPersonName, setCurrentPersonName] = useState('')
   
   // Form states
   const [title, setTitle] = useState('')
@@ -35,6 +38,11 @@ export default function RecordatoriosPage() {
   useEffect(() => {
     if (user) {
       fetchReminders()
+      const currentPerson = localStorage.getItem('current_person')
+      const personName = currentPerson === 'person1' 
+        ? user.user_metadata?.person1_name 
+        : user.user_metadata?.person2_name
+      setCurrentPersonName(personName || 'Usuario')
     }
   }, [user])
 
@@ -57,6 +65,23 @@ export default function RecordatoriosPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validar campos obligatorios
+    if (!title.trim()) {
+      toast.error('Por favor ingresa un título para el recordatorio', {
+        duration: 3000,
+        position: 'top-center',
+      })
+      return
+    }
+    
+    if (!reminderDate) {
+      toast.error('Por favor selecciona una fecha', {
+        duration: 3000,
+        position: 'top-center',
+      })
+      return
+    }
     
     try {
       const reminderData = {
@@ -96,8 +121,17 @@ export default function RecordatoriosPage() {
       setEditingId(null)
       
       fetchReminders()
+      toast.success(editingId ? 'Recordatorio actualizado exitosamente' : 'Recordatorio creado exitosamente', {
+        duration: 3000,
+        position: 'top-center',
+        icon: '🔔',
+      })
     } catch (error) {
       console.error('Error saving reminder:', error)
+      toast.error('Error al guardar el recordatorio', {
+        duration: 3000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -122,8 +156,16 @@ export default function RecordatoriosPage() {
 
         if (error) throw error
         fetchReminders()
+        toast.success('Recordatorio eliminado', {
+          duration: 2000,
+          position: 'top-center',
+        })
       } catch (error) {
         console.error('Error deleting reminder:', error)
+        toast.error('Error al eliminar el recordatorio', {
+          duration: 3000,
+          position: 'top-center',
+        })
       }
     }
   }
@@ -229,6 +271,29 @@ export default function RecordatoriosPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
+      <Toaster
+        toastOptions={{
+          style: {
+            background: '#fff',
+            color: '#363636',
+            padding: '16px',
+            borderRadius: '10px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-purple-200">
         <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -281,7 +346,7 @@ export default function RecordatoriosPage() {
             <h2 className="text-xl font-bold text-purple-900 mb-4">
               {editingId ? 'Editar Recordatorio' : 'Nuevo Recordatorio'}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Título *
@@ -292,7 +357,6 @@ export default function RecordatoriosPage() {
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                   placeholder="Ej: Aniversario de 6 meses"
-                  required
                 />
               </div>
 
@@ -319,7 +383,6 @@ export default function RecordatoriosPage() {
                     value={reminderDate}
                     onChange={(e) => setReminderDate(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
-                    required
                   />
                 </div>
 
@@ -494,6 +557,9 @@ export default function RecordatoriosPage() {
           )}
         </div>
       </div>
+      
+      {/* Chat flotante */}
+      <FloatingChat currentUserName={currentPersonName} />
     </div>
   )
 }

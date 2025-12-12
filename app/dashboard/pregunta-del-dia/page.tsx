@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import toast, { Toaster } from 'react-hot-toast'
+import FloatingChat from '@/components/FloatingChat'
 
 interface DailyQuestion {
   id: string
@@ -31,6 +33,7 @@ export default function PreguntaDelDiaPage() {
   const [showHistory, setShowHistory] = useState(false)
   const [showAddQuestion, setShowAddQuestion] = useState(false)
   const [partnerUserId, setPartnerUserId] = useState<string | null>(null)
+  const [currentPersonName, setCurrentPersonName] = useState('')
   
   // New question form states
   const [newQuestion, setNewQuestion] = useState('')
@@ -38,24 +41,55 @@ export default function PreguntaDelDiaPage() {
 
   useEffect(() => {
     if (user) {
-      findPartner()
-      loadTodayQuestion()
-      loadHistory()
+      initializePage()
     }
   }, [user])
 
+  useEffect(() => {
+    if (partnerUserId && todayQuestion) {
+      loadPartnerAnswer(todayQuestion.id)
+    }
+  }, [partnerUserId, todayQuestion])
+
+  const initializePage = async () => {
+    // Obtener nombre de la persona actual
+    const currentPerson = localStorage.getItem('current_person')
+    const personName = currentPerson === 'person1' 
+      ? user?.user_metadata?.person1_name 
+      : user?.user_metadata?.person2_name
+    setCurrentPersonName(personName || 'Usuario')
+    
+    await findPartner()
+    await loadTodayQuestion()
+    await loadHistory()
+  }
+
   const findPartner = async () => {
     try {
-      // Get all users with the same couple
+      // Obtener couple_name del usuario actual
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      const coupleName = currentUser?.user_metadata?.couple_name
+      
+      if (!coupleName) {
+        console.log('No couple_name found')
+        return
+      }
+
+      // Buscar el perfil de la pareja con el mismo couple_name
       const { data: profiles, error } = await supabase
         .from('profiles')
-        .select('user_id')
-        .neq('user_id', user?.id)
+        .select('id')
+        .eq('couple_name', coupleName)
+        .neq('id', user?.id)
         .limit(1)
 
-      if (error) throw error
+      if (error) {
+        console.warn('Error finding partner:', error.message)
+        return
+      }
+      
       if (profiles && profiles.length > 0) {
-        setPartnerUserId(profiles[0].user_id)
+        setPartnerUserId(profiles[0].id)
       }
     } catch (error) {
       console.error('Error finding partner:', error)
@@ -191,10 +225,17 @@ export default function PreguntaDelDiaPage() {
 
       await loadPartnerAnswer(todayQuestion.id)
       await loadHistory()
-      alert('¡Respuesta guardada! 💭')
+      toast.success('¡Respuesta guardada!', {
+        duration: 2000,
+        position: 'top-center',
+        icon: '💭',
+      })
     } catch (error) {
       console.error('Error saving answer:', error)
-      alert('Error al guardar la respuesta')
+      toast.error('Error al guardar la respuesta', {
+        duration: 3000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -218,10 +259,17 @@ export default function PreguntaDelDiaPage() {
       setNewQuestion('')
       setNewCategory('love')
       setShowAddQuestion(false)
-      alert('¡Pregunta agregada exitosamente! 🎉')
+      toast.success('¡Pregunta agregada exitosamente!', {
+        duration: 2000,
+        position: 'top-center',
+        icon: '🎉',
+      })
     } catch (error) {
       console.error('Error adding question:', error)
-      alert('Error al agregar la pregunta')
+      toast.error('Error al agregar la pregunta', {
+        duration: 3000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -300,6 +348,29 @@ export default function PreguntaDelDiaPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
+      <Toaster
+        toastOptions={{
+          style: {
+            background: '#fff',
+            color: '#363636',
+            padding: '16px',
+            borderRadius: '10px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-purple-200">
         <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -566,6 +637,9 @@ export default function PreguntaDelDiaPage() {
           </>
         )}
       </div>
+      
+      {/* Chat flotante */}
+      <FloatingChat currentUserName={currentPersonName} />
     </div>
   )
 }

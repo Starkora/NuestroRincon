@@ -211,7 +211,7 @@ export default function DiaryPage() {
                   value={newEntry.title}
                   onChange={(e) => setNewEntry({ ...newEntry, title: e.target.value })}
                   placeholder="Título de tu entrada..."
-                  className="w-full p-4 rounded-xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none"
+                  className="w-full p-4 rounded-xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-gray-900 placeholder:text-gray-400"
                   maxLength={100}
                   required
                 />
@@ -244,7 +244,7 @@ export default function DiaryPage() {
                   value={newEntry.content}
                   onChange={(e) => setNewEntry({ ...newEntry, content: e.target.value })}
                   placeholder="¿Qué quieres compartir hoy?"
-                  className="w-full p-4 rounded-xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none resize-none"
+                  className="w-full p-4 rounded-xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none resize-none text-gray-900 placeholder:text-gray-400"
                   rows={8}
                   maxLength={2000}
                   required

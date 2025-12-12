@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import FloatingChat from '@/components/FloatingChat'
 
 interface MoodEntry {
   id: string
   user_id: string
   entry_date: string
-  mood: 'great' | 'good' | 'okay' | 'bad' | 'terrible'
-  energy_level: number
+  mood: 'very_happy' | 'happy' | 'neutral' | 'sad' | 'very_sad'
+  mood_value: number
   activities: string[]
   notes: string | null
   created_at: string
@@ -24,10 +25,11 @@ export default function MoodTrackerPage() {
   const [viewMode, setViewMode] = useState<'calendar' | 'list' | 'stats'>('calendar')
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [todayEntry, setTodayEntry] = useState<MoodEntry | null>(null)
+  const [currentPersonName, setCurrentPersonName] = useState('')
   
   // Form states
-  const [mood, setMood] = useState<'great' | 'good' | 'okay' | 'bad' | 'terrible'>('good')
-  const [energyLevel, setEnergyLevel] = useState(3)
+  const [mood, setMood] = useState<'very_happy' | 'happy' | 'neutral' | 'sad' | 'very_sad'>('happy')
+  const [moodValue, setMoodValue] = useState(3)
   const [activities, setActivities] = useState<string[]>([])
   const [notes, setNotes] = useState('')
 
@@ -40,6 +42,11 @@ export default function MoodTrackerPage() {
     if (user) {
       fetchEntries()
       checkTodayEntry()
+      const currentPerson = localStorage.getItem('current_person')
+      const personName = currentPerson === 'person1' 
+        ? user.user_metadata?.person1_name 
+        : user.user_metadata?.person2_name
+      setCurrentPersonName(personName || 'Usuario')
     }
   }, [user])
 
@@ -76,7 +83,7 @@ export default function MoodTrackerPage() {
       
       if (data) {
         setMood(data.mood)
-        setEnergyLevel(data.energy_level)
+        setMoodValue(data.mood_value)
         setActivities(data.activities || [])
         setNotes(data.notes || '')
       }
@@ -96,7 +103,7 @@ export default function MoodTrackerPage() {
           .from('mood_entries')
           .update({
             mood,
-            energy_level: energyLevel,
+            mood_value: moodValue,
             activities,
             notes: notes || null,
           })
@@ -112,7 +119,7 @@ export default function MoodTrackerPage() {
               user_id: user?.id,
               entry_date: today,
               mood,
-              energy_level: energyLevel,
+              mood_value: moodValue,
               activities,
               notes: notes || null,
             }
@@ -145,31 +152,31 @@ export default function MoodTrackerPage() {
 
   const getMoodIcon = (moodValue: string) => {
     switch (moodValue) {
-      case 'great':
+      case 'very_happy':
         return (
           <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-7.536 5.879a1 1 0 001.415 0 3 3 0 014.242 0 1 1 0 001.415-1.415 5 5 0 00-7.072 0 1 1 0 000 1.415z" clipRule="evenodd" />
           </svg>
         )
-      case 'good':
+      case 'happy':
         return (
           <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clipRule="evenodd" />
           </svg>
         )
-      case 'okay':
+      case 'neutral':
         return (
           <svg className="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-5 5a1 1 0 011-1h2a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
           </svg>
         )
-      case 'bad':
+      case 'sad':
         return (
           <svg className="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-7.536 5.879a1 1 0 001.415 0 5 5 0 017.072 0 1 1 0 001.415-1.415 7 7 0 00-9.9 0 1 1 0 000 1.415z" clipRule="evenodd" />
           </svg>
         )
-      case 'terrible':
+      case 'very_sad':
         return (
           <svg className="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-7.536 5.879a1 1 0 001.415 0 5 5 0 017.072 0 1 1 0 001.415-1.415 7 7 0 00-9.9 0 1 1 0 000 1.415z" clipRule="evenodd" />
@@ -182,22 +189,22 @@ export default function MoodTrackerPage() {
 
   const getMoodLabel = (moodValue: string) => {
     switch (moodValue) {
-      case 'great': return 'Excelente'
-      case 'good': return 'Bien'
-      case 'okay': return 'Normal'
-      case 'bad': return 'Mal'
-      case 'terrible': return 'Terrible'
+      case 'very_happy': return 'Muy Feliz'
+      case 'happy': return 'Feliz'
+      case 'neutral': return 'Normal'
+      case 'sad': return 'Triste'
+      case 'very_sad': return 'Muy Triste'
       default: return moodValue
     }
   }
 
   const getMoodColor = (moodValue: string) => {
     switch (moodValue) {
-      case 'great': return 'bg-green-100 text-green-800'
-      case 'good': return 'bg-blue-100 text-blue-800'
-      case 'okay': return 'bg-yellow-100 text-yellow-800'
-      case 'bad': return 'bg-orange-100 text-orange-800'
-      case 'terrible': return 'bg-red-100 text-red-800'
+      case 'very_happy': return 'bg-green-100 text-green-800'
+      case 'happy': return 'bg-blue-100 text-blue-800'
+      case 'neutral': return 'bg-yellow-100 text-yellow-800'
+      case 'sad': return 'bg-orange-100 text-orange-800'
+      case 'very_sad': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -288,25 +295,25 @@ export default function MoodTrackerPage() {
     if (entries.length === 0) return null
 
     const moodCounts: Record<string, number> = {
-      great: 0,
-      good: 0,
-      okay: 0,
-      bad: 0,
-      terrible: 0
+      very_happy: 0,
+      happy: 0,
+      neutral: 0,
+      sad: 0,
+      very_sad: 0
     }
 
-    let totalEnergy = 0
+    let totalMoodValue = 0
     entries.forEach(entry => {
       moodCounts[entry.mood]++
-      totalEnergy += entry.energy_level
+      totalMoodValue += entry.mood_value
     })
 
-    const avgEnergy = (totalEnergy / entries.length).toFixed(1)
+    const avgMoodValue = (totalMoodValue / entries.length).toFixed(1)
     const mostCommonMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0][0] as any
 
     return {
       totalEntries: entries.length,
-      avgEnergy,
+      avgMoodValue,
       mostCommonMood,
       moodCounts
     }
@@ -346,7 +353,7 @@ export default function MoodTrackerPage() {
               setShowForm(!showForm)
               if (!showForm && todayEntry) {
                 setMood(todayEntry.mood)
-                setEnergyLevel(todayEntry.energy_level)
+                setMoodValue(todayEntry.mood_value)
                 setActivities(todayEntry.activities || [])
                 setNotes(todayEntry.notes || '')
               }
@@ -419,7 +426,7 @@ export default function MoodTrackerPage() {
                   Estado de ánimo *
                 </label>
                 <div className="grid grid-cols-5 gap-3">
-                  {(['great', 'good', 'okay', 'bad', 'terrible'] as const).map((moodOption) => (
+                  {(['very_happy', 'happy', 'neutral', 'sad', 'very_sad'] as const).map((moodOption) => (
                     <button
                       key={moodOption}
                       type="button"
@@ -439,17 +446,17 @@ export default function MoodTrackerPage() {
                 </div>
               </div>
 
-              {/* Energy Level */}
+              {/* Mood Value */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nivel de energía: {energyLevel}/5
+                  Intensidad del estado: {moodValue}/5
                 </label>
                 <input
                   type="range"
                   min="1"
                   max="5"
-                  value={energyLevel}
-                  onChange={(e) => setEnergyLevel(parseInt(e.target.value))}
+                  value={moodValue}
+                  onChange={(e) => setMoodValue(parseInt(e.target.value))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -515,8 +522,8 @@ export default function MoodTrackerPage() {
                 <p className="text-4xl font-bold text-purple-600">{stats.totalEntries}</p>
               </div>
               <div className="bg-white rounded-xl shadow-md p-6">
-                <h3 className="text-sm font-medium text-gray-600 mb-2">Energía Promedio</h3>
-                <p className="text-4xl font-bold text-purple-600">{stats.avgEnergy}/5</p>
+                <h3 className="text-sm font-medium text-gray-600 mb-2">Intensidad Promedio</h3>
+                <p className="text-4xl font-bold text-purple-600">{stats.avgMoodValue}/5</p>
               </div>
               <div className="bg-white rounded-xl shadow-md p-6">
                 <h3 className="text-sm font-medium text-gray-600 mb-2">Ánimo Más Común</h3>
@@ -597,20 +604,20 @@ export default function MoodTrackerPage() {
 
                       <div className="ml-11 space-y-2">
                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <span className="font-medium">Energía:</span>
+                          <span className="font-medium">Intensidad:</span>
                           <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((level) => (
                               <div
                                 key={level}
                                 className={`w-6 h-2 rounded-full ${
-                                  level <= entry.energy_level
+                                  level <= entry.mood_value
                                     ? 'bg-purple-600'
                                     : 'bg-gray-200'
                                 }`}
                               />
                             ))}
                           </div>
-                          <span>{entry.energy_level}/5</span>
+                          <span>{entry.mood_value}/5</span>
                         </div>
 
                         {entry.activities && entry.activities.length > 0 && (
@@ -665,6 +672,9 @@ export default function MoodTrackerPage() {
           </div>
         )}
       </div>
+      
+      {/* Chat flotante */}
+      <FloatingChat currentUserName={currentPersonName} />
     </div>
   )
 }

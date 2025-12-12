@@ -13,7 +13,7 @@ interface Question {
   options: string[]
 }
 
-const questions: Question[] = [
+const defaultQuestions: Question[] = [
   // Comunicación
   { id: 1, category: 'Comunicación', question: '¿Cómo prefieren resolver conflictos?', options: ['Hablar inmediatamente', 'Tomar un tiempo para pensar', 'Buscar compromiso', 'Evitar conflictos'] },
   { id: 2, category: 'Comunicación', question: '¿Con qué frecuencia les gusta hablar sobre sus sentimientos?', options: ['Diariamente', 'Varias veces a la semana', 'Cuando surge algo importante', 'Solo cuando es necesario'] },
@@ -44,10 +44,16 @@ export default function CompatibilityTest() {
   const [loading, setLoading] = useState(true)
   const [currentPersonName, setCurrentPersonName] = useState('')
   const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [person1Answers, setPerson1Answers] = useState<number[]>([])
-  const [person2Answers, setPerson2Answers] = useState<number[]>([])
+  const [person1Answers, setPerson1Answers] = useState<number[][]>([])
+  const [person2Answers, setPerson2Answers] = useState<number[][]>([])
   const [currentPerson, setCurrentPerson] = useState<1 | 2>(1)
+  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([])
   const [showResults, setShowResults] = useState(false)
+  const [showManage, setShowManage] = useState(false)
+  const [questions, setQuestions] = useState<Question[]>(defaultQuestions)
+  const [newQuestion, setNewQuestion] = useState('')
+  const [newCategory, setNewCategory] = useState('Comunicación')
+  const [newOptions, setNewOptions] = useState(['', '', '', ''])
   const router = useRouter()
 
   useEffect(() => {
@@ -69,23 +75,38 @@ export default function CompatibilityTest() {
     setLoading(false)
   }
 
-  const handleAnswer = (answerIndex: number) => {
+  const toggleAnswer = (answerIndex: number) => {
+    setSelectedAnswers(prev => {
+      if (prev.includes(answerIndex)) {
+        return prev.filter(i => i !== answerIndex)
+      } else {
+        return [...prev, answerIndex]
+      }
+    })
+  }
+
+  const handleContinue = () => {
+    if (selectedAnswers.length === 0) return
+
     if (currentPerson === 1) {
-      const newAnswers = [...person1Answers, answerIndex]
+      const newAnswers = [...person1Answers, selectedAnswers]
       setPerson1Answers(newAnswers)
       
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1)
+        setSelectedAnswers([])
       } else {
         setCurrentPerson(2)
         setCurrentQuestion(0)
+        setSelectedAnswers([])
       }
     } else {
-      const newAnswers = [...person2Answers, answerIndex]
+      const newAnswers = [...person2Answers, selectedAnswers]
       setPerson2Answers(newAnswers)
       
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1)
+        setSelectedAnswers([])
       } else {
         setShowResults(true)
       }
@@ -93,20 +114,35 @@ export default function CompatibilityTest() {
   }
 
   const calculateCompatibility = () => {
+    let totalPoints = 0
     let matches = 0
     let partialMatches = 0
     
     for (let i = 0; i < questions.length; i++) {
-      if (person1Answers[i] === person2Answers[i]) {
-        matches++
-      } else if (Math.abs(person1Answers[i] - person2Answers[i]) === 1) {
-        partialMatches++
+      const answers1 = person1Answers[i] || []
+      const answers2 = person2Answers[i] || []
+      
+      // Calcular coincidencias
+      const commonAnswers = answers1.filter(a => answers2.includes(a))
+      
+      if (commonAnswers.length > 0) {
+        // Calcular porcentaje de coincidencia para esta pregunta
+        const allAnswers = [...new Set([...answers1, ...answers2])]
+        const matchPercentage = (commonAnswers.length / allAnswers.length) * 100
+        
+        if (matchPercentage === 100) {
+          matches++
+          totalPoints += 100
+        } else if (matchPercentage >= 50) {
+          partialMatches++
+          totalPoints += matchPercentage
+        } else {
+          totalPoints += matchPercentage * 0.5
+        }
       }
     }
     
-    const exactScore = (matches / questions.length) * 100
-    const partialScore = (partialMatches / questions.length) * 30
-    const totalScore = Math.min(exactScore + partialScore, 100)
+    const totalScore = totalPoints / questions.length
     
     return {
       total: Math.round(totalScore),
@@ -128,13 +164,28 @@ export default function CompatibilityTest() {
     const categories = ['Comunicación', 'Estilo de vida', 'Valores', 'Tiempo juntos', 'Futuro']
     return categories.map(category => {
       const categoryQuestions = questions.filter(q => q.category === category)
-      const matches = categoryQuestions.filter((q, i) => {
-        const questionIndex = questions.indexOf(q)
-        return person1Answers[questionIndex] === person2Answers[questionIndex]
-      }).length
+      let categoryPoints = 0
+      let perfectMatches = 0
       
-      const score = (matches / categoryQuestions.length) * 100
-      return { category, score: Math.round(score), matches, total: categoryQuestions.length }
+      categoryQuestions.forEach(q => {
+        const questionIndex = questions.indexOf(q)
+        const answers1 = person1Answers[questionIndex] || []
+        const answers2 = person2Answers[questionIndex] || []
+        const commonAnswers = answers1.filter(a => answers2.includes(a))
+        
+        if (commonAnswers.length > 0) {
+          const allAnswers = [...new Set([...answers1, ...answers2])]
+          const matchPercentage = (commonAnswers.length / allAnswers.length) * 100
+          categoryPoints += matchPercentage
+          
+          if (matchPercentage === 100) {
+            perfectMatches++
+          }
+        }
+      })
+      
+      const score = categoryPoints / categoryQuestions.length
+      return { category, score: Math.round(score), matches: perfectMatches, total: categoryQuestions.length }
     })
   }
 
@@ -144,12 +195,191 @@ export default function CompatibilityTest() {
     setCurrentPerson(1)
     setCurrentQuestion(0)
     setShowResults(false)
+    setSelectedAnswers([])
+  }
+
+  const addCustomQuestion = () => {
+    if (!newQuestion.trim() || newOptions.some(opt => !opt.trim())) {
+      alert('Por favor completa la pregunta y todas las opciones')
+      return
+    }
+    
+    const newQ: Question = {
+      id: questions.length + 1,
+      category: newCategory,
+      question: newQuestion.trim(),
+      options: newOptions.map(opt => opt.trim())
+    }
+    
+    setQuestions([...questions, newQ])
+    setNewQuestion('')
+    setNewCategory('Comunicación')
+    setNewOptions(['', '', '', ''])
+  }
+
+  const removeQuestion = (id: number) => {
+    if (questions.length <= 5) {
+      alert('Debe haber al menos 5 preguntas')
+      return
+    }
+    setQuestions(questions.filter(q => q.id !== id))
+  }
+
+  const resetToDefault = () => {
+    setQuestions(defaultQuestions)
+  }
+
+  const updateOption = (index: number, value: string) => {
+    const newOpts = [...newOptions]
+    newOpts[index] = value
+    setNewOptions(newOpts)
   }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center">
         <div className="text-purple-600 text-xl">Cargando...</div>
+      </div>
+    )
+  }
+
+  if (showManage) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-rose-100 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <button
+              onClick={() => setShowManage(false)}
+              className="inline-flex items-center text-purple-600 hover:text-purple-800 mb-4 cursor-pointer"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Volver
+            </button>
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-2xl p-8 space-y-6">
+            <div>
+              <h2 className="text-3xl font-bold text-purple-900 mb-4">✏️ Gestionar Preguntas</h2>
+              <p className="text-gray-700 mb-6">
+                Personaliza las preguntas del test. Cada pregunta debe tener 4 opciones (mínimo 5 preguntas).
+              </p>
+            </div>
+            
+            {/* Add New Question */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6">
+              <h3 className="font-bold text-purple-900 mb-4">Agregar Nueva Pregunta</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Pregunta</label>
+                  <input
+                    type="text"
+                    value={newQuestion}
+                    onChange={(e) => setNewQuestion(e.target.value)}
+                    placeholder="¿Cuál es...?"
+                    className="w-full p-3 rounded-xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-gray-900"
+                    maxLength={200}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+                  <select
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    className="w-full p-3 rounded-xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-gray-900"
+                  >
+                    <option value="Comunicación">Comunicación</option>
+                    <option value="Estilo de vida">Estilo de vida</option>
+                    <option value="Valores">Valores</option>
+                    <option value="Tiempo juntos">Tiempo juntos</option>
+                    <option value="Futuro">Futuro</option>
+                    <option value="Personalidad">Personalidad</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Opciones (4 requeridas)</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {newOptions.map((opt, index) => (
+                      <input
+                        key={index}
+                        type="text"
+                        value={opt}
+                        onChange={(e) => updateOption(index, e.target.value)}
+                        placeholder={`Opción ${index + 1}`}
+                        className="p-3 rounded-xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-gray-900"
+                        maxLength={100}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <button
+                  onClick={addCustomQuestion}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-xl font-semibold transition shadow-lg"
+                >
+                  ➕ Agregar Pregunta
+                </button>
+              </div>
+            </div>
+
+            {/* Current Questions */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-purple-900">Preguntas Actuales ({questions.length})</h3>
+                <button
+                  onClick={resetToDefault}
+                  className="text-sm text-purple-600 hover:text-purple-800 font-semibold"
+                >
+                  🔄 Restaurar Predeterminadas
+                </button>
+              </div>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {questions.map((q) => (
+                  <div key={q.id} className="bg-white border-2 border-gray-200 rounded-xl p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs font-semibold px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                            {q.category}
+                          </span>
+                        </div>
+                        <p className="text-gray-900 font-medium mb-2">{q.question}</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {q.options.map((opt, i) => (
+                            <span key={i} className="text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                              {i + 1}. {opt}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => removeQuestion(q.id)}
+                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition"
+                        title="Eliminar pregunta"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowManage(false)}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-4 rounded-xl font-semibold transition shadow-lg"
+              >
+                ✓ Guardar y Volver
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <FloatingChat currentUserName={currentPersonName} />
       </div>
     )
   }
@@ -330,18 +560,50 @@ export default function CompatibilityTest() {
             {questions[currentQuestion].question}
           </h2>
 
-          <div className="space-y-3">
+          <div className="space-y-3 mb-6">
             {questions[currentQuestion].options.map((option, index) => (
               <button
                 key={index}
-                onClick={() => handleAnswer(index)}
-                className="w-full bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 text-purple-900 p-4 rounded-xl font-semibold transition border-2 border-purple-200 hover:border-purple-400 hover:shadow-lg cursor-pointer text-left"
+                onClick={() => toggleAnswer(index)}
+                className={`w-full p-4 rounded-xl font-semibold transition border-2 cursor-pointer text-left flex items-center gap-3 ${
+                  selectedAnswers.includes(index)
+                    ? 'bg-gradient-to-r from-purple-200 to-pink-200 border-purple-500 shadow-lg'
+                    : 'bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border-purple-200 hover:border-purple-400'
+                } text-purple-900`}
               >
-                <span className="mr-3">{String.fromCharCode(65 + index)}.</span>
-                {option}
+                <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 ${
+                  selectedAnswers.includes(index)
+                    ? 'bg-purple-600 border-purple-600'
+                    : 'bg-white border-purple-300'
+                }`}>
+                  {selectedAnswers.includes(index) && (
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="flex-1">
+                  <span className="mr-2">{String.fromCharCode(65 + index)}.</span>
+                  {option}
+                </span>
               </button>
             ))}
           </div>
+
+          <button
+            onClick={handleContinue}
+            disabled={selectedAnswers.length === 0}
+            className={`w-full py-4 rounded-xl font-bold shadow-lg transition cursor-pointer flex items-center justify-center gap-2 ${
+              selectedAnswers.length === 0
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white'
+            }`}
+          >
+            <span>Continuar</span>
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
         </div>
 
         {/* Info */}
@@ -350,9 +612,22 @@ export default function CompatibilityTest() {
             <div className="text-2xl">ℹ️</div>
             <div className="text-sm text-purple-700">
               <p className="font-semibold mb-2">¿Cómo funciona?</p>
-              <p>Cada persona debe responder las 15 preguntas de forma independiente. Al final, compararemos sus respuestas para calcular su nivel de compatibilidad en diferentes áreas de la relación.</p>
+              <p>Cada persona debe responder las {questions.length} preguntas de forma independiente. <strong>Puedes seleccionar múltiples opciones</strong> en cada pregunta si más de una te representa. Al final, compararemos sus respuestas para calcular su nivel de compatibilidad en diferentes áreas de la relación.</p>
             </div>
           </div>
+        </div>
+
+        {/* Manage Questions Button */}
+        <div className="text-center">
+          <button
+            onClick={() => setShowManage(true)}
+            className="bg-white hover:bg-gray-50 text-purple-600 px-6 py-3 rounded-xl font-semibold border-2 border-purple-200 transition cursor-pointer inline-flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Gestionar Preguntas
+          </button>
         </div>
       </div>
 

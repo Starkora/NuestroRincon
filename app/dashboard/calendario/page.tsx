@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import toast, { Toaster } from 'react-hot-toast'
+import FloatingChat from '@/components/FloatingChat'
 
 interface CalendarEvent {
   id: string
@@ -12,7 +14,7 @@ interface CalendarEvent {
   event_date: string
   event_time: string | null
   location: string | null
-  event_type: 'date' | 'anniversary' | 'special' | 'reminder' | 'other'
+  event_type: 'date' | 'anniversary' | 'special' | 'meeting' | 'other'
   color: string
   is_all_day: boolean
   reminder_minutes: number | null
@@ -37,6 +39,7 @@ export default function CalendarioPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [currentPersonName, setCurrentPersonName] = useState('')
   
   // Form states
   const [title, setTitle] = useState('')
@@ -44,7 +47,7 @@ export default function CalendarioPage() {
   const [eventDate, setEventDate] = useState('')
   const [eventTime, setEventTime] = useState('')
   const [location, setLocation] = useState('')
-  const [eventType, setEventType] = useState<'date' | 'anniversary' | 'special' | 'reminder' | 'other'>('date')
+  const [eventType, setEventType] = useState<'date' | 'anniversary' | 'special' | 'meeting' | 'other'>('date')
   const [color, setColor] = useState('#8B5CF6')
   const [isAllDay, setIsAllDay] = useState(false)
   const [reminderMinutes, setReminderMinutes] = useState<number | null>(null)
@@ -52,6 +55,11 @@ export default function CalendarioPage() {
   useEffect(() => {
     if (user) {
       fetchEvents()
+      const currentPerson = localStorage.getItem('current_person')
+      const personName = currentPerson === 'person1' 
+        ? user.user_metadata?.person1_name 
+        : user.user_metadata?.person2_name
+      setCurrentPersonName(personName || 'Usuario')
     }
   }, [user, currentDate])
 
@@ -75,50 +83,66 @@ export default function CalendarioPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    if (!title.trim() || !eventDate) {
+      toast.error('Por favor completa el título y la fecha', {
+        duration: 3000,
+        position: 'top-center',
+      })
+      return
+    }
+    
     try {
+      const eventData = {
+        title: title.trim(),
+        description: description.trim() || null,
+        event_date: eventDate,
+        event_time: isAllDay || !eventTime ? null : eventTime,
+        location: location.trim() || null,
+        event_type: eventType,
+        color,
+        is_all_day: isAllDay,
+        reminder_minutes: reminderMinutes || null,
+      }
+
       if (editingId) {
         const { error } = await supabase
           .from('calendar_events')
-          .update({
-            title,
-            description,
-            event_date: eventDate,
-            event_time: isAllDay ? null : eventTime,
-            location,
-            event_type: eventType,
-            color,
-            is_all_day: isAllDay,
-            reminder_minutes: reminderMinutes,
-          })
+          .update(eventData)
           .eq('id', editingId)
 
-        if (error) throw error
+        if (error) {
+          console.error('Error completo:', error)
+          throw error
+        }
       } else {
         const { error } = await supabase
           .from('calendar_events')
           .insert([
             {
               user_id: user?.id,
-              title,
-              description,
-              event_date: eventDate,
-              event_time: isAllDay ? null : eventTime,
-              location,
-              event_type: eventType,
-              color,
-              is_all_day: isAllDay,
-              reminder_minutes: reminderMinutes,
+              ...eventData
             }
           ])
 
-        if (error) throw error
+        if (error) {
+          console.error('Error completo:', error)
+          throw error
+        }
       }
 
       resetForm()
-      fetchEvents()
-    } catch (error) {
+      await fetchEvents()
+      toast.success(editingId ? 'Evento actualizado exitosamente' : 'Evento guardado exitosamente', {
+        duration: 3000,
+        position: 'top-center',
+        icon: '📅',
+      })
+    } catch (error: any) {
       console.error('Error al guardar evento:', error)
-      alert('Error al guardar el evento')
+      toast.error(`Error al guardar el evento: ${error.message || 'Intenta nuevamente'}`, {
+        duration: 4000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -162,9 +186,16 @@ export default function CalendarioPage() {
 
       if (error) throw error
       fetchEvents()
+      toast.success('Evento eliminado', {
+        duration: 2000,
+        position: 'top-center',
+      })
     } catch (error) {
       console.error('Error al eliminar evento:', error)
-      alert('Error al eliminar el evento')
+      toast.error('Error al eliminar el evento', {
+        duration: 3000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -214,10 +245,10 @@ export default function CalendarioPage() {
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
         )
-      case 'reminder':
+      case 'meeting':
         return (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
         )
       default:
@@ -234,7 +265,7 @@ export default function CalendarioPage() {
       case 'date': return 'Cita'
       case 'anniversary': return 'Aniversario'
       case 'special': return 'Especial'
-      case 'reminder': return 'Recordatorio'
+      case 'meeting': return 'Reunión'
       default: return 'Otro'
     }
   }
@@ -252,6 +283,29 @@ export default function CalendarioPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
+      <Toaster
+        toastOptions={{
+          style: {
+            background: '#fff',
+            color: '#363636',
+            padding: '16px',
+            borderRadius: '10px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -379,7 +433,7 @@ export default function CalendarioPage() {
                 <h2 className="text-xl font-bold text-purple-900 mb-4">
                   {editingId ? 'Editar Evento' : 'Nuevo Evento'}
                 </h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} noValidate className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Título *
@@ -388,7 +442,6 @@ export default function CalendarioPage() {
                       type="text"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      required
                       placeholder="Cena romántica"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                     />
@@ -415,7 +468,6 @@ export default function CalendarioPage() {
                       type="date"
                       value={eventDate}
                       onChange={(e) => setEventDate(e.target.value)}
-                      required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                     />
                   </div>
@@ -472,7 +524,7 @@ export default function CalendarioPage() {
                       <option value="date">Cita</option>
                       <option value="anniversary">Aniversario</option>
                       <option value="special">Especial</option>
-                      <option value="reminder">Recordatorio</option>
+                      <option value="meeting">Reunión</option>
                       <option value="other">Otro</option>
                     </select>
                   </div>
@@ -593,6 +645,9 @@ export default function CalendarioPage() {
           </div>
         </div>
       </div>
+      
+      {/* Chat flotante */}
+      <FloatingChat currentUserName={currentPersonName} />
     </div>
   )
 }
