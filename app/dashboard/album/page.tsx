@@ -23,6 +23,7 @@ export default function AlbumPage() {
   const [uploading, setUploading] = useState(false)
   const [showUploadForm, setShowUploadForm] = useState(false)
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
   const [coupleName, setCoupleName] = useState('')
   const [currentPersonName, setCurrentPersonName] = useState('')
   const router = useRouter()
@@ -32,6 +33,10 @@ export default function AlbumPage() {
   const [description, setDescription] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>('')
+
+  // Edit form states
+  const [editTitle, setEditTitle] = useState('')
+  const [editDescription, setEditDescription] = useState('')
 
   useEffect(() => {
     checkUser()
@@ -173,6 +178,50 @@ export default function AlbumPage() {
     } catch (error) {
       console.error('Error al eliminar:', error)
       alert('Error al eliminar la foto')
+    }
+  }
+
+  const handleEdit = (photo: Photo) => {
+    setEditTitle(photo.title || '')
+    setEditDescription(photo.description || '')
+    setIsEditing(true)
+  }
+
+  const handleUpdate = async () => {
+    if (!selectedPhoto) return
+
+    try {
+      const { error } = await supabase
+        .from('album_photos')
+        .update({
+          title: editTitle,
+          description: editDescription,
+        })
+        .eq('id', selectedPhoto.id)
+
+      if (error) throw error
+
+      // Actualizar la foto seleccionada
+      setSelectedPhoto({
+        ...selectedPhoto,
+        title: editTitle,
+        description: editDescription,
+      })
+      
+      setIsEditing(false)
+      fetchPhotos()
+      alert('Foto actualizada correctamente')
+    } catch (error) {
+      console.error('Error al actualizar:', error)
+      alert('Error al actualizar la foto')
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    if (selectedPhoto) {
+      setEditTitle(selectedPhoto.title || '')
+      setEditDescription(selectedPhoto.description || '')
     }
   }
 
@@ -358,32 +407,91 @@ export default function AlbumPage() {
             </div>
 
             <div className="p-6">
-              {selectedPhoto.title && (
-                <h3 className="text-2xl font-bold text-purple-900 mb-2">
-                  {selectedPhoto.title}
-                </h3>
+              {!isEditing ? (
+                <>
+                  {selectedPhoto.title && (
+                    <h3 className="text-2xl font-bold text-purple-900 mb-2">
+                      {selectedPhoto.title}
+                    </h3>
+                  )}
+                  {selectedPhoto.description && (
+                    <p className="text-purple-700 mb-4">{selectedPhoto.description}</p>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-purple-600">
+                      {new Date(selectedPhoto.upload_date).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(selectedPhoto)}
+                        className="text-purple-600 hover:text-purple-800 px-4 py-2 cursor-pointer flex items-center gap-2 border border-purple-300 rounded-lg hover:bg-purple-50 transition"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(selectedPhoto)}
+                        className="text-red-500 hover:text-red-700 px-4 py-2 cursor-pointer flex items-center gap-2 border border-red-300 rounded-lg hover:bg-red-50 transition"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-purple-900 mb-4">Editar Foto</h3>
+                  <div>
+                    <label className="block text-sm font-medium text-purple-900 mb-2">
+                      Título
+                    </label>
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      maxLength={100}
+                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                      placeholder="Título de la foto"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-purple-900 mb-2">
+                      Descripción
+                    </label>
+                    <textarea
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      maxLength={500}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                      placeholder="Descripción de la foto"
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleUpdate}
+                      className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-lg cursor-pointer transition"
+                    >
+                      Guardar Cambios
+                    </button>
+                  </div>
+                </div>
               )}
-              {selectedPhoto.description && (
-                <p className="text-purple-700 mb-4">{selectedPhoto.description}</p>
-              )}
-              <div className="flex justify-between items-center">
-                <p className="text-sm text-purple-600">
-                  {new Date(selectedPhoto.upload_date).toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
-                <button
-                  onClick={() => handleDelete(selectedPhoto)}
-                  className="text-red-500 hover:text-red-700 px-4 py-2 cursor-pointer flex items-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  Eliminar
-                </button>
-              </div>
             </div>
           </div>
         </div>
