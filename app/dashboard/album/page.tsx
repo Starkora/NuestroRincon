@@ -37,6 +37,8 @@ export default function AlbumPage() {
   // Edit form states
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const [editFile, setEditFile] = useState<File | null>(null)
+  const [editPreviewUrl, setEditPreviewUrl] = useState<string>('')
 
   useEffect(() => {
     checkUser()
@@ -184,18 +186,46 @@ export default function AlbumPage() {
   const handleEdit = (photo: Photo) => {
     setEditTitle(photo.title || '')
     setEditDescription(photo.description || '')
+    setEditFile(null)
+    setEditPreviewUrl('')
     setIsEditing(true)
+  }
+
+  const handleEditFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+    if (selectedFile) {
+      setEditFile(selectedFile)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setEditPreviewUrl(reader.result as string)
+      }
+      reader.readAsDataURL(selectedFile)
+    }
   }
 
   const handleUpdate = async () => {
     if (!selectedPhoto) return
 
+    setUploading(true)
+
     try {
+      let photoUrl = selectedPhoto.photo_url
+      let publicId = selectedPhoto.cloudinary_public_id
+
+      // Si hay una nueva foto, subirla a Cloudinary
+      if (editFile) {
+        const { url, publicId: newPublicId } = await uploadToCloudinary(editFile)
+        photoUrl = url
+        publicId = newPublicId
+      }
+
       const { error } = await supabase
         .from('album_photos')
         .update({
           title: editTitle,
           description: editDescription,
+          photo_url: photoUrl,
+          cloudinary_public_id: publicId,
         })
         .eq('id', selectedPhoto.id)
 
@@ -206,19 +236,27 @@ export default function AlbumPage() {
         ...selectedPhoto,
         title: editTitle,
         description: editDescription,
+        photo_url: photoUrl,
+        cloudinary_public_id: publicId,
       })
       
       setIsEditing(false)
+      setEditFile(null)
+      setEditPreviewUrl('')
       fetchPhotos()
       alert('Foto actualizada correctamente')
     } catch (error) {
       console.error('Error al actualizar:', error)
       alert('Error al actualizar la foto')
+    } finally {
+      setUploading(false)
     }
   }
 
   const handleCancelEdit = () => {
     setIsEditing(false)
+    setEditFile(null)
+    setEditPreviewUrl('')
     if (selectedPhoto) {
       setEditTitle(selectedPhoto.title || '')
       setEditDescription(selectedPhoto.description || '')
@@ -450,6 +488,33 @@ export default function AlbumPage() {
               ) : (
                 <div className="space-y-4">
                   <h3 className="text-xl font-bold text-purple-900 mb-4">Editar Foto</h3>
+                  
+                  {/* Selector de nueva foto */}
+                  <div>
+                    <label className="block text-sm font-medium text-purple-900 mb-2">
+                      Cambiar foto (opcional)
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleEditFileChange}
+                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 cursor-pointer"
+                    />
+                    {editPreviewUrl && (
+                      <div className="mt-4 relative w-full h-48 rounded-lg overflow-hidden">
+                        <Image
+                          src={editPreviewUrl}
+                          alt="Nueva foto"
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                          Nueva foto
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-purple-900 mb-2">
                       Título
@@ -479,15 +544,17 @@ export default function AlbumPage() {
                   <div className="flex gap-2 justify-end">
                     <button
                       onClick={handleCancelEdit}
-                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition"
+                      disabled={uploading}
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={handleUpdate}
-                      className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-lg cursor-pointer transition"
+                      disabled={uploading}
+                      className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-lg cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Guardar Cambios
+                      {uploading ? 'Guardando...' : 'Guardar Cambios'}
                     </button>
                   </div>
                 </div>
