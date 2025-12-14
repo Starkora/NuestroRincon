@@ -14,6 +14,7 @@ interface Photo {
   photo_url: string
   cloudinary_public_id: string
   upload_date: string
+  photo_date?: string
   created_at: string
 }
 
@@ -31,12 +32,14 @@ export default function AlbumPage() {
   // Form states
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [photoDate, setPhotoDate] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>('')
 
   // Edit form states
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const [editPhotoDate, setEditPhotoDate] = useState('')
   const [editFile, setEditFile] = useState<File | null>(null)
   const [editPreviewUrl, setEditPreviewUrl] = useState<string>('')
 
@@ -143,6 +146,7 @@ export default function AlbumPage() {
             user_id: user.id,
             title,
             description,
+            photo_date: photoDate || null,
             photo_url: url,
             cloudinary_public_id: publicId,
           }
@@ -153,6 +157,7 @@ export default function AlbumPage() {
       // Limpiar formulario
       setTitle('')
       setDescription('')
+      setPhotoDate('')
       setFile(null)
       setPreviewUrl('')
       setShowUploadForm(false)
@@ -186,6 +191,7 @@ export default function AlbumPage() {
   const handleEdit = (photo: Photo) => {
     setEditTitle(photo.title || '')
     setEditDescription(photo.description || '')
+    setEditPhotoDate(photo.photo_date || '')
     setEditFile(null)
     setEditPreviewUrl('')
     setIsEditing(true)
@@ -224,6 +230,7 @@ export default function AlbumPage() {
         .update({
           title: editTitle,
           description: editDescription,
+          photo_date: editPhotoDate || null,
           photo_url: photoUrl,
           cloudinary_public_id: publicId,
         })
@@ -236,6 +243,7 @@ export default function AlbumPage() {
         ...selectedPhoto,
         title: editTitle,
         description: editDescription,
+        photo_date: editPhotoDate,
         photo_url: photoUrl,
         cloudinary_public_id: publicId,
       })
@@ -260,6 +268,7 @@ export default function AlbumPage() {
     if (selectedPhoto) {
       setEditTitle(selectedPhoto.title || '')
       setEditDescription(selectedPhoto.description || '')
+      setEditPhotoDate(selectedPhoto.photo_date || '')
     }
   }
 
@@ -340,6 +349,18 @@ export default function AlbumPage() {
                   maxLength={100}
                   className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                   placeholder="Ej: Nuestro viaje a la playa"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-900 mb-2">
+                  Fecha de la foto (opcional)
+                </label>
+                <input
+                  type="date"
+                  value={photoDate}
+                  onChange={(e) => setPhotoDate(e.target.value)}
+                  className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                 />
               </div>
 
@@ -456,13 +477,24 @@ export default function AlbumPage() {
                     <p className="text-purple-700 mb-4">{selectedPhoto.description}</p>
                   )}
                   <div className="flex justify-between items-center">
-                    <p className="text-sm text-purple-600">
-                      {new Date(selectedPhoto.upload_date).toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
+                    <div className="flex flex-col gap-1">
+                      {selectedPhoto.photo_date && (
+                        <p className="text-sm font-semibold text-purple-800">
+                          📅 {new Date(selectedPhoto.photo_date).toLocaleDateString('es-ES', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      )}
+                      <p className="text-xs text-purple-600">
+                        Subida el {new Date(selectedPhoto.upload_date).toLocaleDateString('es-ES', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(selectedPhoto)}
@@ -528,6 +560,19 @@ export default function AlbumPage() {
                       placeholder="Título de la foto"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-purple-900 mb-2">
+                      Fecha de la foto
+                    </label>
+                    <input
+                      type="date"
+                      value={editPhotoDate}
+                      onChange={(e) => setEditPhotoDate(e.target.value)}
+                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-purple-900 mb-2">
                       Descripción
