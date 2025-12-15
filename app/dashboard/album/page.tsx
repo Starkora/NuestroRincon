@@ -480,19 +480,11 @@ export default function AlbumPage() {
                     <div className="flex flex-col gap-1">
                       {selectedPhoto.photo_date && (
                         <p className="text-sm font-semibold text-purple-800">
-                          📅 {new Date(selectedPhoto.photo_date).toLocaleDateString('es-ES', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
+                          📅 {selectedPhoto.photo_date.split('T')[0].split('-').reverse().join('/')}
                         </p>
                       )}
                       <p className="text-xs text-purple-600">
-                        Subida el {new Date(selectedPhoto.upload_date).toLocaleDateString('es-ES', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
+                        Subida el {selectedPhoto.upload_date.split('T')[0].split('-').reverse().join('/')}
                       </p>
                     </div>
                     <div className="flex gap-2">
