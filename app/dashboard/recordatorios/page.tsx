@@ -139,6 +139,7 @@ export default function RecordatoriosPage() {
     setEditingId(reminder.id)
     setTitle(reminder.title)
     setDescription(reminder.description || '')
+    // Asegurarse de que la fecha se muestre correctamente sin conversión de zona horaria
     setReminderDate(reminder.reminder_date)
     setReminderTime(reminder.reminder_time || '')
     setType(reminder.type)
@@ -185,8 +186,14 @@ export default function RecordatoriosPage() {
   }
 
   const getDaysUntil = (date: string) => {
+    // Crear fechas locales sin conversión de zona horaria
     const today = new Date()
-    const reminderDate = new Date(date)
+    today.setHours(0, 0, 0, 0)
+    
+    const [year, month, day] = date.split('-')
+    const reminderDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+    reminderDate.setHours(0, 0, 0, 0)
+    
     const diffTime = reminderDate.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     
@@ -500,11 +507,16 @@ export default function RecordatoriosPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span>
-                          {new Date(reminder.reminder_date).toLocaleDateString('es-ES', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                          })}
+                          {(() => {
+                            // Crear fecha local sin conversión de zona horaria
+                            const [year, month, day] = reminder.reminder_date.split('-')
+                            const localDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+                            return localDate.toLocaleDateString('es-ES', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric'
+                            })
+                          })()}
                         </span>
                       </div>
                       {reminder.reminder_time && (
