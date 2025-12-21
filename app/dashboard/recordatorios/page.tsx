@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import toast, { Toaster } from 'react-hot-toast'
+import { Bell } from 'lucide-react'
 import FloatingChat from '@/components/FloatingChat'
 
 interface Reminder {
@@ -124,7 +125,7 @@ export default function RecordatoriosPage() {
       toast.success(editingId ? 'Recordatorio actualizado exitosamente' : 'Recordatorio creado exitosamente', {
         duration: 3000,
         position: 'top-center',
-        icon: '🔔',
+        icon: <Bell className="w-5 h-5" />,
       })
     } catch (error) {
       console.error('Error saving reminder:', error)

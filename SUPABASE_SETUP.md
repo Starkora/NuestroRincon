@@ -1,4 +1,4 @@
-# 🔐 Configuración de Supabase
+# Configuración de Supabase
 
 Para que la autenticación funcione, necesitas configurar Supabase:
 
@@ -19,7 +19,7 @@ Para que la autenticación funcione, necesitas configurar Supabase:
 
 ## Paso 3: Obtener credenciales
 
-1. En el panel de Supabase, ve a **Settings** (⚙️) > **API**
+1. En el panel de Supabase, ve a **Settings** > **API**
 2. Encontrarás:
    - **Project URL**: tu URL de proyecto
    - **anon/public key**: tu clave pública
@@ -39,8 +39,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_publica_aqui
 1. En Supabase, ve a **Authentication** > **Providers**
 2. Habilita **Email** provider
 3. En **Email Auth**, configura:
-   - ✅ Enable Email provider
-   - ✅ Enable Email confirmations (recomendado)
+   - Enable Email provider
+   - Enable Email confirmations (recomendado)
    - Site URL: `http://localhost:3000` (desarrollo)
    - Redirect URLs: `http://localhost:3000/**` (desarrollo)
 
@@ -61,7 +61,7 @@ Cuando despliegues a Vercel:
    - Site URL: `https://tu-dominio.vercel.app`
    - Redirect URLs: `https://tu-dominio.vercel.app/**`
 
-## ✅ Verificar que funciona
+## Verificar que funciona
 
 1. Asegúrate de que el servidor de desarrollo esté corriendo:
    ```bash
@@ -74,20 +74,20 @@ Cuando despliegues a Vercel:
 5. Revisa tu email para confirmar la cuenta
 6. Inicia sesión
 
-## 🎉 ¡Listo!
+## ¡Listo!
 
 Ya tienes autenticación funcionando completamente gratis con:
-- ✅ Registro de usuarios
-- ✅ Login/Logout
-- ✅ Confirmación por email
-- ✅ Dashboard protegido
-- ✅ Datos de pareja guardados
+- Registro de usuarios
+- Login/Logout
+- Confirmación por email
+- Dashboard protegido
+- Datos de pareja guardados
 
-## 📊 Límites del plan gratuito
+## Límites del plan gratuito
 
 - 50,000 usuarios activos por mes
 - 500 MB de almacenamiento de base de datos
 - 1 GB de transferencia de archivos
 - 2 GB de ancho de banda
 
-¡Más que suficiente para empezar! 💕
+¡Más que suficiente para empezar!

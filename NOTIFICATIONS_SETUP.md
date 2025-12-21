@@ -27,8 +27,8 @@ Este script crea:
 ## Paso 2: Verificar las Tablas
 
 En el **Table Editor** de Supabase, deberías ver:
-- ✅ `profiles` (con columnas: id, couple_name, person1_name, person2_name, start_date, created_at, updated_at)
-- ✅ `notifications` (con columnas: id, user_id, title, message, type, is_read, link, created_at)
+- `profiles` (con columnas: id, couple_name, person1_name, person2_name, start_date, created_at, updated_at)
+- `notifications` (con columnas: id, user_id, title, message, type, is_read, link, created_at)
 
 ## Paso 3: Verificar RLS
 
@@ -61,7 +61,7 @@ import { sendNotificationToPartner } from '@/lib/notifications'
 // Enviar notificación cuando se agrega algo a timeline
 await sendNotificationToPartner({
   currentUserId: user.id,
-  title: '📸 Nuevo momento',
+  title: 'Nuevo momento',
   message: 'Tu pareja agregó un nuevo momento especial',
   type: 'timeline',
   link: '/dashboard/timeline'
@@ -77,7 +77,7 @@ Cuando se agrega un nuevo momento:
 ```typescript
 await sendNotificationToPartner({
   currentUserId: user.id,
-  title: '📸 Nuevo momento en Timeline',
+  title: 'Nuevo momento en Timeline',
   message: `${personName} agregó: "${title}"`,
   type: 'timeline',
   link: '/dashboard/timeline'
@@ -89,7 +89,7 @@ Cuando se envía un mensaje:
 ```typescript
 await sendNotificationToPartner({
   currentUserId: user.id,
-  title: '💬 Nuevo mensaje',
+  title: 'Nuevo mensaje',
   message: `${senderName}: ${content.substring(0, 50)}...`,
   type: 'message',
   link: '/dashboard' // El chat está en el dashboard
@@ -102,7 +102,7 @@ Cuando se crea una entrada compartida:
 if (isShared) {
   await sendNotificationToPartner({
     currentUserId: user.id,
-    title: '📔 Nueva entrada en el Diario',
+    title: 'Nueva entrada en el Diario',
     message: `${personName} compartió: "${title}"`,
     type: 'diary',
     link: '/dashboard/diary'
@@ -115,7 +115,7 @@ Cuando se agrega o completa un ítem:
 ```typescript
 await sendNotificationToPartner({
   currentUserId: user.id,
-  title: '✅ Bucket List actualizada',
+  title: 'Bucket List actualizada',
   message: `${personName} ${completed ? 'completó' : 'agregó'}: "${title}"`,
   type: 'other',
   link: '/dashboard/bucket-list'
@@ -127,7 +127,7 @@ Cuando se sube una foto:
 ```typescript
 await sendNotificationToPartner({
   currentUserId: user.id,
-  title: '📷 Nueva foto en Álbum',
+  title: 'Nueva foto en Álbum',
   message: `${personName} subió una nueva foto`,
   type: 'album',
   link: '/dashboard/albums'

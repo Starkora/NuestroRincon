@@ -110,7 +110,7 @@ export default function MoodTrackerPage() {
           .eq('id', todayEntry.id)
 
         if (error) throw error
-        alert('Estado de ánimo actualizado ✓')
+        alert('Estado de ánimo actualizado')
       } else {
         const { error } = await supabase
           .from('mood_entries')
@@ -126,7 +126,7 @@ export default function MoodTrackerPage() {
           ])
 
         if (error) throw error
-        alert('Estado de ánimo guardado ✓')
+        alert('Estado de ánimo guardado')
       }
 
       setShowForm(false)

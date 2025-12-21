@@ -29,7 +29,7 @@ Puedes usar cualquiera de estos servicios:
 3. Configura:
 
 ```
-Enable Custom SMTP: ✅ ON
+Enable Custom SMTP: ON
 
 SMTP Host: smtp.gmail.com
 SMTP Port: 587
@@ -115,19 +115,19 @@ Puedes personalizar los emails en Supabase:
 <p>Recibimos una solicitud para restablecer tu contraseña.</p>
 <p><a href="{{ .ConfirmationURL }}">Click aquí para crear una nueva contraseña</a></p>
 <p>Si no solicitaste esto, ignora este correo.</p>
-<p>Con amor,<br>El equipo de Nuestro Rincón 💕</p>
+<p>Con amor,<br>El equipo de Nuestro Rincón</p>
 ```
 
 ## Resumen de Pasos Rápidos
 
 Para desarrollo local:
-1. ✅ Configura Gmail con contraseña de aplicación
-2. ✅ Agrega SMTP en Supabase Settings → Auth
-3. ✅ Agrega URLs de redirección
-4. ✅ Prueba el forgot-password
+1. Configura Gmail con contraseña de aplicación
+2. Agrega SMTP en Supabase Settings → Auth
+3. Agrega URLs de redirección
+4. Prueba el forgot-password
 
-Para producción:
-1. ✅ Usa servicio SMTP dedicado (SendGrid, Mailgun, etc.)
-2. ✅ Verifica dominio de email
-3. ✅ Configura SPF/DKIM para evitar spam
-4. ✅ Actualiza Site URL y Redirect URLs con dominio real
+### Para Producción:
+1. Usa servicio SMTP dedicado (SendGrid, Mailgun, etc.)
+2. Verifica dominio de email
+3. Configura SPF/DKIM para evitar spam
+4. Actualiza Site URL y Redirect URLs con dominio real

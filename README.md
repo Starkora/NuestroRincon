@@ -1,8 +1,8 @@
-# 💕 Nuestro Rincón
+# Nuestro Rincón
 
 Una aplicación web para parejas que desean compartir y preservar sus momentos especiales juntos.
 
-## 🚀 Stack Tecnológico (100% Gratuito)
+## Stack Tecnológico (100% Gratuito)
 
 - **Next.js 15** - Framework React con App Router
 - **TypeScript** - Type safety
@@ -11,23 +11,23 @@ Una aplicación web para parejas que desean compartir y preservar sus momentos e
 - **Cloudinary** - Almacenamiento de imágenes (25GB gratis)
 - **Vercel** - Hosting y deployment (Gratis ilimitado)
 
-## ✨ Características
+## Características
 
 ### Implementadas
-- ✅ Landing page responsive
-- ✅ Contador de días juntos
-- ✅ Diseño moderno con gradientes
+- Landing page responsive
+- Contador de días juntos
+- Diseño moderno con gradientes
 
 ### Por Implementar
-- 📅 Timeline de relación interactivo
-- ✅ Bucket List de pareja
-- 📸 Álbum de fotos privado
-- 💌 Sistema de mensajes de amor
-- 🎮 Juegos y actividades para parejas
-- 📝 Diario compartido
-- 📆 Calendario de eventos importantes
+- Timeline de relación interactivo
+- Bucket List de pareja
+- Álbum de fotos privado
+- Sistema de mensajes de amor
+- Juegos y actividades para parejas
+- Diario compartido
+- Calendario de eventos importantes
 
-## 🛠️ Instalación y Configuración
+## Instalación y Configuración
 
 ### 1. Instalar dependencias
 ```bash
@@ -65,7 +65,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 📦 Deploy en Vercel (Gratis)
+## Deploy en Vercel (Gratis)
 
 1. Sube tu código a GitHub
 2. Ve a [https://vercel.com](https://vercel.com)
@@ -73,7 +73,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 4. Agrega las variables de entorno
 5. ¡Deploy!
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 nuestrorincon/
@@ -87,14 +87,14 @@ nuestrorincon/
 └── README.md
 ```
 
-## 🎨 Personalización
+## Personalización
 
 Puedes personalizar:
 - Colores en `tailwind.config.ts`
 - Fecha de inicio en `app/page.tsx` (línea 7)
 - Textos y características
 
-## 📝 Próximos Pasos
+## Próximos Pasos
 
 1. Implementar autenticación con Supabase
 2. Crear base de datos para timeline y bucket list

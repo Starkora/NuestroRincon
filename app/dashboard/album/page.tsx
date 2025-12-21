@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Calendar } from 'lucide-react'
 import FloatingChat from '@/components/FloatingChat'
 
 interface Photo {
@@ -479,9 +480,10 @@ export default function AlbumPage() {
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col gap-1">
                       {selectedPhoto.photo_date && (
-                        <p className="text-sm font-semibold text-purple-800">
-                          📅 {selectedPhoto.photo_date.split('T')[0].split('-').reverse().join('/')}
-                        </p>
+                        <div className="flex items-center gap-2 text-sm font-semibold text-purple-800">
+                          <Calendar className="w-4 h-4" />
+                          <span>{selectedPhoto.photo_date.split('T')[0].split('-').reverse().join('/')}</span>
+                        </div>
                       )}
                       <p className="text-xs text-purple-600">
                         Subida el {selectedPhoto.upload_date.split('T')[0].split('-').reverse().join('/')}
