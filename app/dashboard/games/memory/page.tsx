@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Gift, Trophy, Star, Sparkles, PartyPopper } from 'lucide-react'
 import FloatingChat from '@/components/FloatingChat'
 
 interface MemoryCard {
@@ -170,7 +171,7 @@ export default function MemoryGame() {
           </svg>
         )
       case 'gift':
-        return '🎁'
+        return <Gift className={iconClass} />
       case 'word':
         return (
           <svg className={iconClass} fill="currentColor" viewBox="0 0 20 20">
@@ -201,10 +202,17 @@ export default function MemoryGame() {
   }
 
   const getScoreMessage = () => {
-    if (moves <= memoryPairs.length + 5) return '¡Increíble! Memoria perfecta 🏆'
-    if (moves <= memoryPairs.length * 2) return '¡Excelente! Gran memoria 🌟'
-    if (moves <= memoryPairs.length * 3) return '¡Bien hecho! Buena memoria 👏'
-    return '¡Completado! Sigan practicando 💪'
+    if (moves <= memoryPairs.length + 5) return '¡Increíble! Memoria perfecta'
+    if (moves <= memoryPairs.length * 2) return '¡Excelente! Gran memoria'
+    if (moves <= memoryPairs.length * 3) return '¡Bien hecho! Buena memoria'
+    return '¡Completado! Sigan practicando'
+  }
+
+  const getScoreIcon = () => {
+    if (moves <= memoryPairs.length + 5) return <Trophy className="w-20 h-20 text-yellow-500" />
+    if (moves <= memoryPairs.length * 2) return <Star className="w-20 h-20 text-yellow-400" />
+    if (moves <= memoryPairs.length * 3) return <Sparkles className="w-20 h-20 text-purple-500" />
+    return <PartyPopper className="w-20 h-20 text-pink-500" />
   }
 
   if (loading) {
@@ -306,7 +314,9 @@ export default function MemoryGame() {
                 <div className="text-sm text-gray-600">Lugares</div>
               </div>
               <div className="bg-red-50 rounded-xl p-4 text-center">
-                <div className="text-3xl mb-2">🎁</div>
+                <div className="flex justify-center mb-2 text-red-600">
+                  <Gift className="w-8 h-8" />
+                </div>
                 <div className="text-sm text-gray-600">Regalos</div>
               </div>
               <div className="bg-indigo-50 rounded-xl p-4 text-center">
@@ -399,7 +409,9 @@ export default function MemoryGame() {
         {gameWon && (
           <div className="bg-white rounded-3xl shadow-2xl p-8">
             <div className="text-center mb-8">
-              <div className="text-6xl mb-4">🎉</div>
+              <div className="flex justify-center mb-4">
+                {getScoreIcon()}
+              </div>
               <h2 className="text-3xl font-bold text-indigo-900 mb-4">¡Felicitaciones!</h2>
               <p className="text-xl text-gray-700 mb-6">{getScoreMessage()}</p>
             </div>

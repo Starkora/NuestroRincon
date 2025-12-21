@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Heart, Edit, Plus, RefreshCw, Check, X, CheckCircle, XCircle, PartyPopper, Smile, Lightbulb, Sparkles } from 'lucide-react'
 import FloatingChat from '@/components/FloatingChat'
 
 const defaultQuestions = [
@@ -150,11 +151,11 @@ export default function LoveQuizGame() {
   }
 
   const getScoreMessage = (percentage: number) => {
-    if (percentage >= 90) return "¡Increíble! Se conocen perfectamente 💖"
-    if (percentage >= 70) return "¡Excelente! Tienen una gran conexión 💕"
-    if (percentage >= 50) return "¡Bien! Se conocen bastante bien 💗"
-    if (percentage >= 30) return "¡Pueden mejorar! Hay mucho por descubrir 💓"
-    return "¡Es hora de conocerse mejor! 💘"
+    if (percentage >= 90) return "¡Increíble! Se conocen perfectamente"
+    if (percentage >= 70) return "¡Excelente! Tienen una gran conexión"
+    if (percentage >= 50) return "¡Bien! Se conocen bastante bien"
+    if (percentage >= 30) return "¡Pueden mejorar! Hay mucho por descubrir"
+    return "¡Es hora de conocerse mejor!"
   }
 
   const addCustomQuestion = () => {
@@ -181,6 +182,13 @@ export default function LoveQuizGame() {
 
   const resetToDefault = () => {
     setQuestions(defaultQuestions)
+  }
+
+  const getResultIcon = (matches: number, total: number) => {
+    const percentage = matches / total
+    if (percentage >= 0.7) return <PartyPopper className="w-20 h-20 text-yellow-500" />
+    if (percentage >= 0.5) return <Smile className="w-20 h-20 text-green-500" />
+    return <Sparkles className="w-20 h-20 text-purple-500" />
   }
 
   if (loading) {
@@ -220,7 +228,7 @@ export default function LoveQuizGame() {
         {gameState === 'intro' && (
           <div className="bg-white rounded-3xl shadow-2xl p-8">
             <div className="text-center mb-8">
-              <div className="text-6xl mb-4">💕</div>
+              <Heart className="w-20 h-20 mx-auto mb-4 text-red-500" fill="currentColor" />
               <h2 className="text-3xl font-bold text-red-900 mb-4">¿Listos para el desafío?</h2>
               <p className="text-gray-700 mb-6">
                 En este juego, cada uno responderá {questions.length} preguntas sobre su pareja.
@@ -255,9 +263,9 @@ export default function LoveQuizGame() {
               </button>
               <button
                 onClick={() => setGameState('manage')}
-                className="bg-white hover:bg-gray-50 text-red-600 px-6 py-4 rounded-xl font-semibold border-2 border-red-200 transition cursor-pointer"
+                className="bg-white hover:bg-gray-50 text-red-600 px-6 py-4 rounded-xl font-semibold border-2 border-red-200 transition cursor-pointer flex items-center gap-2"
               >
-                ✏️ Preguntas
+                <Edit className="w-4 h-4" /> Preguntas
               </button>
             </div>
           </div>
@@ -327,8 +335,8 @@ export default function LoveQuizGame() {
             {/* Progress Info */}
             {round === 1 && (
               <div className="bg-white/80 backdrop-blur rounded-2xl p-4 text-center text-gray-600">
-                <p className="text-sm">
-                  💡 <strong>{partnerName}</strong> no podrá ver tus respuestas hasta el final
+                <p className="text-sm flex items-center justify-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-purple-500" /> <strong>{partnerName}</strong> no podrá ver tus respuestas hasta el final
                 </p>
               </div>
             )}
@@ -340,8 +348,8 @@ export default function LoveQuizGame() {
           <div className="space-y-6">
             {/* Score Card */}
             <div className="bg-white rounded-3xl shadow-2xl p-8 text-center">
-              <div className="text-6xl mb-4">
-                {calculateMatches() >= questions.length * 0.7 ? '🎉' : calculateMatches() >= questions.length * 0.5 ? '😊' : '💪'}
+              <div className="flex justify-center mb-4">
+                {getResultIcon(calculateMatches(), questions.length)}
               </div>
               <h2 className="text-3xl font-bold text-red-900 mb-4">Resultados</h2>
               
@@ -379,9 +387,7 @@ export default function LoveQuizGame() {
                   return (
                     <div key={q.id} className={`rounded-2xl p-4 border-2 ${match ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
                       <div className="flex items-start gap-3 mb-3">
-                        <div className={`text-2xl ${match ? '✅' : '❌'}`}>
-                          {match ? '✅' : '❌'}
-                        </div>
+                        {match ? <CheckCircle className="w-6 h-6 text-green-600" /> : <XCircle className="w-6 h-6 text-red-600" />}
                         <div className="flex-1">
                           <div className="font-semibold text-gray-900 mb-2">{q.question}</div>
                           <div className="space-y-2 text-sm">
@@ -425,7 +431,10 @@ export default function LoveQuizGame() {
           <div className="space-y-6">
             {/* Header */}
             <div className="bg-white rounded-3xl shadow-2xl p-8">
-              <h2 className="text-3xl font-bold text-red-900 mb-4">✏️ Gestionar Preguntas</h2>
+              <div className="flex items-center gap-2 mb-4">
+                <Edit className="w-8 h-8 text-red-500" />
+                <h2 className="text-3xl font-bold text-red-900">Gestionar Preguntas</h2>
+              </div>
               <p className="text-gray-700 mb-6">
                 Personaliza las preguntas del juego. Puedes agregar nuevas preguntas o eliminar las existentes (mínimo 5).
               </p>
@@ -462,9 +471,9 @@ export default function LoveQuizGame() {
                   <button
                     onClick={addCustomQuestion}
                     disabled={!newQuestion.trim()}
-                    className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-3 rounded-xl font-semibold transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-3 rounded-xl font-semibold transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    ➕ Agregar Pregunta
+                    <Plus className="w-5 h-5" /> Agregar Pregunta
                   </button>
                 </div>
               </div>
@@ -475,9 +484,9 @@ export default function LoveQuizGame() {
                   <h3 className="font-bold text-red-900">Preguntas Actuales ({questions.length})</h3>
                   <button
                     onClick={resetToDefault}
-                    className="text-sm text-red-600 hover:text-red-800 font-semibold"
+                    className="text-sm text-red-600 hover:text-red-800 font-semibold flex items-center gap-1"
                   >
-                    🔄 Restaurar Predeterminadas
+                    <RefreshCw className="w-4 h-4" /> Restaurar Predeterminadas
                   </button>
                 </div>
                 <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -509,9 +518,9 @@ export default function LoveQuizGame() {
               <div className="flex gap-4">
                 <button
                   onClick={() => setGameState('intro')}
-                  className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-4 rounded-xl font-semibold transition shadow-lg"
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-4 rounded-xl font-semibold transition shadow-lg"
                 >
-                  ✓ Guardar y Volver
+                  <Check className="w-5 h-5" /> Guardar y Volver
                 </button>
                 <button
                   onClick={() => setGameState('intro')}

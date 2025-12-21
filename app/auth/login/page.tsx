@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Heart, AlertCircle } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -43,9 +44,9 @@ export default function LoginPage() {
       
       // Mensajes de error más específicos
       if (error.message?.includes('Email not confirmed')) {
-        setError('❌ Tu email no está confirmado. Ve a Supabase → Authentication → Users y confirma manualmente el email, o desactiva la confirmación de email.')
+        setError('Tu email no está confirmado. Ve a Supabase → Authentication → Users y confirma manualmente el email, o desactiva la confirmación de email.')
       } else if (error.message?.includes('Invalid login credentials')) {
-        setError('❌ Email o contraseña incorrectos')
+        setError('Email o contraseña incorrectos')
       } else {
         setError(error.message || 'Error al iniciar sesión')
       }
@@ -57,7 +58,10 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-purple-900 mb-2">💕 Bienvenidos</h1>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Heart className="w-8 h-8 text-purple-600" fill="currentColor" />
+            <h1 className="text-3xl font-bold text-purple-900">Bienvenidos</h1>
+          </div>
           <p className="text-purple-700">Accede a su espacio compartido</p>
         </div>
 

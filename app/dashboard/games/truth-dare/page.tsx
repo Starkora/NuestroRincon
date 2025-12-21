@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Heart } from 'lucide-react'
 import FloatingChat from '@/components/FloatingChat'
 
 const truths = [
@@ -317,7 +318,7 @@ export default function TruthDareGame() {
         {/* Info Box */}
         <div className="mt-8 bg-white/80 backdrop-blur rounded-2xl p-6 border-2 border-purple-200">
           <div className="flex items-start gap-3">
-            <div className="text-3xl">💝</div>
+            <Heart className="w-8 h-8 text-pink-600" fill="currentColor" />
             <div>
               <h3 className="font-bold text-purple-900 mb-2">Reglas del juego:</h3>
               <ul className="space-y-2 text-purple-700 text-sm">

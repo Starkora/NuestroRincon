@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Heart, HeartHandshake, RefreshCw, Check, Edit, Plus } from 'lucide-react'
 import FloatingChat from '@/components/FloatingChat'
 
 interface Question {
@@ -153,11 +154,11 @@ export default function CompatibilityTest() {
   }
 
   const getCompatibilityMessage = (score: number) => {
-    if (score >= 80) return { emoji: '💞', title: '¡Conexión Perfecta!', message: 'Tienen una compatibilidad excepcional. Sus valores y preferencias están muy alineados.' }
-    if (score >= 65) return { emoji: '💖', title: '¡Muy Compatible!', message: 'Comparten muchas cosas en común. Las diferencias pueden complementarse bien.' }
-    if (score >= 50) return { emoji: '💕', title: 'Buena Compatibilidad', message: 'Tienen una base sólida. Trabajen en entender y respetar sus diferencias.' }
-    if (score >= 35) return { emoji: '💝', title: 'Compatibilidad Moderada', message: 'Hay áreas de desafío, pero con comunicación pueden funcionar bien.' }
-    return { emoji: '💗', title: 'Diferentes Perspectivas', message: 'Tienen muchas diferencias. Requiere esfuerzo y comprensión mutua.' }
+    if (score >= 80) return { iconType: 'perfect', title: '¡Conexión Perfecta!', message: 'Tienen una compatibilidad excepcional. Sus valores y preferencias están muy alineados.' }
+    if (score >= 65) return { iconType: 'great', title: '¡Muy Compatible!', message: 'Comparten muchas cosas en común. Las diferencias pueden complementarse bien.' }
+    if (score >= 50) return { iconType: 'good', title: 'Buena Compatibilidad', message: 'Tienen una base sólida. Trabajen en entender y respetar sus diferencias.' }
+    if (score >= 35) return { iconType: 'moderate', title: 'Compatibilidad Moderada', message: 'Hay áreas de desafío, pero con comunicación pueden funcionar bien.' }
+    return { iconType: 'different', title: 'Diferentes Perspectivas', message: 'Tienen muchas diferencias. Requiere esfuerzo y comprensión mutua.' }
   }
 
   const getCategoryResults = () => {
@@ -261,7 +262,10 @@ export default function CompatibilityTest() {
 
           <div className="bg-white rounded-3xl shadow-2xl p-8 space-y-6">
             <div>
-              <h2 className="text-3xl font-bold text-purple-900 mb-4">✏️ Gestionar Preguntas</h2>
+              <div className="flex items-center gap-2 mb-4">
+                <Edit className="w-8 h-8 text-purple-600" />
+                <h2 className="text-3xl font-bold text-purple-900">Gestionar Preguntas</h2>
+              </div>
               <p className="text-gray-700 mb-6">
                 Personaliza las preguntas del test. Cada pregunta debe tener 4 opciones (mínimo 5 preguntas).
               </p>
@@ -315,9 +319,10 @@ export default function CompatibilityTest() {
                 </div>
                 <button
                   onClick={addCustomQuestion}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-xl font-semibold transition shadow-lg"
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-xl font-semibold transition shadow-lg"
                 >
-                  ➕ Agregar Pregunta
+                  <Plus className="w-5 h-5" />
+                  Agregar Pregunta
                 </button>
               </div>
             </div>
@@ -328,9 +333,10 @@ export default function CompatibilityTest() {
                 <h3 className="font-bold text-purple-900">Preguntas Actuales ({questions.length})</h3>
                 <button
                   onClick={resetToDefault}
-                  className="text-sm text-purple-600 hover:text-purple-800 font-semibold"
+                  className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800 font-semibold"
                 >
-                  🔄 Restaurar Predeterminadas
+                  <RefreshCw className="w-4 h-4" />
+                  Restaurar Predeterminadas
                 </button>
               </div>
               <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -371,9 +377,10 @@ export default function CompatibilityTest() {
             <div className="flex gap-4">
               <button
                 onClick={() => setShowManage(false)}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-4 rounded-xl font-semibold transition shadow-lg"
+                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-4 rounded-xl font-semibold transition shadow-lg"
               >
-                ✓ Guardar y Volver
+                <Check className="w-5 h-5" />
+                Guardar y Volver
               </button>
             </div>
           </div>
@@ -382,6 +389,24 @@ export default function CompatibilityTest() {
         <FloatingChat currentUserName={currentPersonName} />
       </div>
     )
+  }
+
+  const getCompatibilityIcon = (iconType: string) => {
+    const iconClass = "w-24 h-24 mx-auto mb-4"
+    switch (iconType) {
+      case 'perfect':
+        return <Heart className={`${iconClass} text-pink-500`} fill="currentColor" />
+      case 'great':
+        return <HeartHandshake className={`${iconClass} text-purple-500`} />
+      case 'good':
+        return <Heart className={`${iconClass} text-purple-400`} />
+      case 'moderate':
+        return <Heart className={`${iconClass} text-gray-400`} />
+      case 'different':
+        return <Heart className={`${iconClass} text-gray-300`} />
+      default:
+        return <Heart className={`${iconClass} text-purple-500`} />
+    }
   }
 
   if (showResults) {
@@ -402,12 +427,15 @@ export default function CompatibilityTest() {
               </svg>
               Volver a Juegos
             </Link>
-            <h1 className="text-4xl font-bold text-purple-900 mb-2">💞 Resultados del Test</h1>
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <HeartHandshake className="w-10 h-10 text-purple-600" />
+              <h1 className="text-4xl font-bold text-purple-900">Resultados del Test</h1>
+            </div>
           </div>
 
           {/* Score Card */}
           <div className="bg-white rounded-3xl shadow-2xl p-8 mb-6 text-center">
-            <div className="text-8xl mb-4">{message.emoji}</div>
+            {getCompatibilityIcon(message.iconType)}
             <h2 className="text-4xl font-bold text-purple-900 mb-2">{message.title}</h2>
             <p className="text-purple-600 mb-6">{message.message}</p>
             

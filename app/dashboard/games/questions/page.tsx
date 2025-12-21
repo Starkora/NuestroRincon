@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { MessageCircle, Target } from 'lucide-react'
 import FloatingChat from '@/components/FloatingChat'
 
 const questions = [
@@ -220,7 +221,7 @@ export default function QuestionsGame() {
         {showAnswer && (
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200 animate-fade-in">
             <div className="flex items-start gap-3">
-              <div className="text-2xl">💭</div>
+              <MessageCircle className="w-6 h-6 text-purple-600" />
               <div>
                 <h3 className="font-bold text-purple-900 mb-2">Consejo para esta pregunta:</h3>
                 <p className="text-purple-700 text-sm leading-relaxed">
@@ -236,7 +237,7 @@ export default function QuestionsGame() {
         {/* Info Box */}
         <div className="mt-8 bg-white/80 backdrop-blur rounded-2xl p-6 border-2 border-pink-200">
           <div className="flex items-start gap-3">
-            <div className="text-3xl">🎯</div>
+            <Target className="w-8 h-8 text-purple-600" />
             <div>
               <h3 className="font-bold text-purple-900 mb-2">Cómo jugar:</h3>
               <ul className="space-y-2 text-purple-700 text-sm">

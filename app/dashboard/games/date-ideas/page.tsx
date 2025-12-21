@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { 
+  Flame, ShoppingBasket, Sunrise, Bath, Film, 
+  Mountain, Map, Bike, Store, Lock,
+  ChefHat, Palette, Mic, Camera, BookHeart,
+  Sparkles, BookOpen, User, Droplets, Star,
+  UtensilsCrossed, Pizza, Wine, Cake, Coffee,
+  Gamepad2, TentTree, Flag, Frame, Music,
+  Dice6, Save, FileText, Lightbulb
+} from 'lucide-react'
 import FloatingChat from '@/components/FloatingChat'
 
 interface DateIdea {
@@ -11,51 +20,51 @@ interface DateIdea {
   idea: string
   budget: string
   time: string
-  icon: string
+  icon: React.ReactNode
 }
 
 const dateIdeas: DateIdea[] = [
   // Románticas
-  { category: 'Romántica', idea: 'Cena a la luz de las velas en casa', budget: 'Bajo', time: '2-3 horas', icon: '🕯️' },
-  { category: 'Romántica', idea: 'Picnic al atardecer en un parque', budget: 'Bajo', time: '3-4 horas', icon: '🧺' },
-  { category: 'Romántica', idea: 'Ver el amanecer o atardecer juntos', budget: 'Gratis', time: '1-2 horas', icon: '🌅' },
-  { category: 'Romántica', idea: 'Baño relajante con sales y música', budget: 'Bajo', time: '1-2 horas', icon: '🛁' },
-  { category: 'Romántica', idea: 'Noche de películas románticas con snacks', budget: 'Bajo', time: '3-4 horas', icon: '🎬' },
+  { category: 'Romántica', idea: 'Cena a la luz de las velas en casa', budget: 'Bajo', time: '2-3 horas', icon: <Flame className="w-12 h-12" /> },
+  { category: 'Romántica', idea: 'Picnic al atardecer en un parque', budget: 'Bajo', time: '3-4 horas', icon: <ShoppingBasket className="w-12 h-12" /> },
+  { category: 'Romántica', idea: 'Ver el amanecer o atardecer juntos', budget: 'Gratis', time: '1-2 horas', icon: <Sunrise className="w-12 h-12" /> },
+  { category: 'Romántica', idea: 'Baño relajante con sales y música', budget: 'Bajo', time: '1-2 horas', icon: <Bath className="w-12 h-12" /> },
+  { category: 'Romántica', idea: 'Noche de películas románticas con snacks', budget: 'Bajo', time: '3-4 horas', icon: <Film className="w-12 h-12" /> },
   
   // Aventura
-  { category: 'Aventura', idea: 'Senderismo en una montaña cercana', budget: 'Gratis', time: '4-6 horas', icon: '⛰️' },
-  { category: 'Aventura', idea: 'Explorar un pueblo o ciudad nueva', budget: 'Medio', time: 'Todo el día', icon: '🗺️' },
-  { category: 'Aventura', idea: 'Hacer un tour en bicicleta', budget: 'Bajo', time: '2-4 horas', icon: '🚴' },
-  { category: 'Aventura', idea: 'Visitar un mercado local que no conozcan', budget: 'Bajo', time: '2-3 horas', icon: '🏪' },
-  { category: 'Aventura', idea: 'Escape room para parejas', budget: 'Medio', time: '1-2 horas', icon: '🔐' },
+  { category: 'Aventura', idea: 'Senderismo en una montaña cercana', budget: 'Gratis', time: '4-6 horas', icon: <Mountain className="w-12 h-12" /> },
+  { category: 'Aventura', idea: 'Explorar un pueblo o ciudad nueva', budget: 'Medio', time: 'Todo el día', icon: <Map className="w-12 h-12" /> },
+  { category: 'Aventura', idea: 'Hacer un tour en bicicleta', budget: 'Bajo', time: '2-4 horas', icon: <Bike className="w-12 h-12" /> },
+  { category: 'Aventura', idea: 'Visitar un mercado local que no conozcan', budget: 'Bajo', time: '2-3 horas', icon: <Store className="w-12 h-12" /> },
+  { category: 'Aventura', idea: 'Escape room para parejas', budget: 'Medio', time: '1-2 horas', icon: <Lock className="w-12 h-12" /> },
   
   // Creativas
-  { category: 'Creativa', idea: 'Clase de cocina juntos en casa', budget: 'Bajo', time: '2-3 horas', icon: '👨‍🍳' },
-  { category: 'Creativa', idea: 'Noche de arte: pintura o manualidades', budget: 'Bajo', time: '2-3 horas', icon: '🎨' },
-  { category: 'Creativa', idea: 'Karaoke en casa o en un bar', budget: 'Bajo-Medio', time: '2-3 horas', icon: '🎤' },
-  { category: 'Creativa', idea: 'Sesión de fotos DIY en lugares bonitos', budget: 'Gratis', time: '2-3 horas', icon: '📸' },
-  { category: 'Creativa', idea: 'Crear un álbum de recuerdos juntos', budget: 'Bajo', time: '3-4 horas', icon: '📔' },
+  { category: 'Creativa', idea: 'Clase de cocina juntos en casa', budget: 'Bajo', time: '2-3 horas', icon: <ChefHat className="w-12 h-12" /> },
+  { category: 'Creativa', idea: 'Noche de arte: pintura o manualidades', budget: 'Bajo', time: '2-3 horas', icon: <Palette className="w-12 h-12" /> },
+  { category: 'Creativa', idea: 'Karaoke en casa o en un bar', budget: 'Bajo-Medio', time: '2-3 horas', icon: <Mic className="w-12 h-12" /> },
+  { category: 'Creativa', idea: 'Sesión de fotos DIY en lugares bonitos', budget: 'Gratis', time: '2-3 horas', icon: <Camera className="w-12 h-12" /> },
+  { category: 'Creativa', idea: 'Crear un álbum de recuerdos juntos', budget: 'Bajo', time: '3-4 horas', icon: <BookHeart className="w-12 h-12" /> },
   
   // Relajantes
-  { category: 'Relajante', idea: 'Masajes mutuos con aceites aromáticos', budget: 'Bajo', time: '1-2 horas', icon: '💆' },
-  { category: 'Relajante', idea: 'Leer libros juntos en un café', budget: 'Bajo', time: '2-3 horas', icon: '📚' },
-  { category: 'Relajante', idea: 'Yoga o meditación en pareja', budget: 'Gratis', time: '1-2 horas', icon: '🧘' },
-  { category: 'Relajante', idea: 'Tarde de spa en casa con mascarillas', budget: 'Bajo', time: '2-3 horas', icon: '🧖' },
-  { category: 'Relajante', idea: 'Observar las estrellas desde un lugar oscuro', budget: 'Gratis', time: '2-3 horas', icon: '⭐' },
+  { category: 'Relajante', idea: 'Masajes mutuos con aceites aromáticos', budget: 'Bajo', time: '1-2 horas', icon: <Sparkles className="w-12 h-12" /> },
+  { category: 'Relajante', idea: 'Leer libros juntos en un café', budget: 'Bajo', time: '2-3 horas', icon: <BookOpen className="w-12 h-12" /> },
+  { category: 'Relajante', idea: 'Yoga o meditación en pareja', budget: 'Gratis', time: '1-2 horas', icon: <User className="w-12 h-12" /> },
+  { category: 'Relajante', idea: 'Tarde de spa en casa con mascarillas', budget: 'Bajo', time: '2-3 horas', icon: <Droplets className="w-12 h-12" /> },
+  { category: 'Relajante', idea: 'Observar las estrellas desde un lugar oscuro', budget: 'Gratis', time: '2-3 horas', icon: <Star className="w-12 h-12" /> },
   
   // Gastronómicas
-  { category: 'Gastronómica', idea: 'Tour gastronómico por la ciudad', budget: 'Medio-Alto', time: '4-5 horas', icon: '🍽️' },
-  { category: 'Gastronómica', idea: 'Cocinar una receta nueva de otro país', budget: 'Bajo-Medio', time: '2-3 horas', icon: '🌮' },
-  { category: 'Gastronómica', idea: 'Cata de vinos o cervezas artesanales', budget: 'Medio', time: '2-3 horas', icon: '🍷' },
-  { category: 'Gastronómica', idea: 'Preparar postres juntos desde cero', budget: 'Bajo', time: '2-3 horas', icon: '🍰' },
-  { category: 'Gastronómica', idea: 'Brunch especial en un lugar nuevo', budget: 'Medio', time: '2-3 horas', icon: '🥞' },
+  { category: 'Gastronómica', idea: 'Tour gastronómico por la ciudad', budget: 'Medio-Alto', time: '4-5 horas', icon: <UtensilsCrossed className="w-12 h-12" /> },
+  { category: 'Gastronómica', idea: 'Cocinar una receta nueva de otro país', budget: 'Bajo-Medio', time: '2-3 horas', icon: <Pizza className="w-12 h-12" /> },
+  { category: 'Gastronómica', idea: 'Cata de vinos o cervezas artesanales', budget: 'Medio', time: '2-3 horas', icon: <Wine className="w-12 h-12" /> },
+  { category: 'Gastronómica', idea: 'Preparar postres juntos desde cero', budget: 'Bajo', time: '2-3 horas', icon: <Cake className="w-12 h-12" /> },
+  { category: 'Gastronómica', idea: 'Brunch especial en un lugar nuevo', budget: 'Medio', time: '2-3 horas', icon: <Coffee className="w-12 h-12" /> },
   
   // Divertidas
-  { category: 'Divertida', idea: 'Noche de juegos de mesa o videojuegos', budget: 'Bajo', time: '2-4 horas', icon: '🎮' },
-  { category: 'Divertida', idea: 'Ir a una feria o parque de diversiones', budget: 'Medio', time: '4-6 horas', icon: '🎡' },
-  { category: 'Divertida', idea: 'Mini golf o boliche', budget: 'Medio', time: '2-3 horas', icon: '⛳' },
-  { category: 'Divertida', idea: 'Visitar un museo o galería de arte', budget: 'Bajo-Medio', time: '2-3 horas', icon: '🖼️' },
-  { category: 'Divertida', idea: 'Ir a un concierto o evento en vivo', budget: 'Medio-Alto', time: '3-4 horas', icon: '🎵' },
+  { category: 'Divertida', idea: 'Noche de juegos de mesa o videojuegos', budget: 'Bajo', time: '2-4 horas', icon: <Gamepad2 className="w-12 h-12" /> },
+  { category: 'Divertida', idea: 'Ir a una feria o parque de diversiones', budget: 'Medio', time: '4-6 horas', icon: <TentTree className="w-12 h-12" /> },
+  { category: 'Divertida', idea: 'Mini golf o boliche', budget: 'Medio', time: '2-3 horas', icon: <Flag className="w-12 h-12" /> },
+  { category: 'Divertida', idea: 'Visitar un museo o galería de arte', budget: 'Bajo-Medio', time: '2-3 horas', icon: <Frame className="w-12 h-12" /> },
+  { category: 'Divertida', idea: 'Ir a un concierto o evento en vivo', budget: 'Medio-Alto', time: '3-4 horas', icon: <Music className="w-12 h-12" /> },
 ]
 
 export default function DateIdeasGame() {
@@ -165,7 +174,7 @@ export default function DateIdeasGame() {
             <div className="bg-white rounded-3xl shadow-2xl p-8 mb-6">
               {!currentIdea ? (
                 <div className="text-center py-12">
-                  <div className="text-8xl mb-6">🎲</div>
+                  <Dice6 className="w-24 h-24 mx-auto mb-6 text-purple-500" />
                   <h2 className="text-3xl font-bold text-purple-900 mb-4">
                     Genera una idea de cita
                   </h2>
@@ -191,7 +200,9 @@ export default function DateIdeasGame() {
                   </div>
 
                   <div className="text-center py-8">
-                    <div className="text-7xl mb-6">{currentIdea.icon}</div>
+                    <div className="flex justify-center items-center mb-6 text-purple-600">
+                      {currentIdea.icon}
+                    </div>
                     <h2 className="text-3xl font-bold text-purple-900 mb-6 leading-relaxed">
                       {currentIdea.idea}
                     </h2>
@@ -239,12 +250,12 @@ export default function DateIdeasGame() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-3xl shadow-2xl p-6 sticky top-6">
               <h3 className="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">
-                <span>💾</span> Ideas Guardadas
+                <Save className="w-5 h-5" /> Ideas Guardadas
               </h3>
               
               {savedIdeas.length === 0 ? (
                 <div className="text-center py-8 text-purple-400">
-                  <div className="text-4xl mb-2">📝</div>
+                  <FileText className="w-12 h-12 mx-auto mb-2" />
                   <p className="text-sm">Aún no has guardado ninguna idea</p>
                 </div>
               ) : (
@@ -255,7 +266,7 @@ export default function DateIdeasGame() {
                       className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border-2 border-purple-200 group hover:shadow-lg transition"
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="text-2xl">{idea.icon}</span>
+                        <div className="text-purple-600">{idea.icon}</div>
                         <button
                           onClick={() => removeSavedIdea(idea)}
                           className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition cursor-pointer"
@@ -281,7 +292,7 @@ export default function DateIdeasGame() {
         {/* Info Box */}
         <div className="mt-8 bg-white/80 backdrop-blur rounded-2xl p-6 border-2 border-purple-200">
           <div className="flex items-start gap-3">
-            <div className="text-3xl">💡</div>
+            <Lightbulb className="w-8 h-8 text-purple-600" />
             <div>
               <h3 className="font-bold text-purple-900 mb-2">Consejos para citas exitosas:</h3>
               <ul className="space-y-2 text-purple-700 text-sm">
