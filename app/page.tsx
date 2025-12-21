@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Heart, Calendar, CheckSquare, Camera, Mail, Gamepad2, BookOpen } from 'lucide-react'
 
 export default function Home() {
   // Calcula días juntos (puedes personalizar la fecha)
@@ -14,7 +15,10 @@ export default function Home() {
       {/* Header */}
       <header className="p-6">
         <nav className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-purple-900">💕 Nuestro Rincón</h1>
+          <div className="flex items-center gap-2">
+            <Heart className="w-6 h-6 text-purple-600" fill="currentColor" />
+            <h1 className="text-2xl font-bold text-purple-900">Nuestro Rincón</h1>
+          </div>
           <a 
             href="/auth/login"
             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
@@ -34,41 +38,44 @@ export default function Home() {
             Una sola cuenta para ambos - compartan momentos, creen recuerdos y celebren su amor juntos
           </p>
           <div className="inline-block bg-white rounded-full px-8 py-4 shadow-lg">
-            <p className="text-3xl font-bold text-purple-600">
-              {diffDays} días juntos 💖
-            </p>
+            <div className="flex items-center gap-3">
+              <Heart className="w-8 h-8 text-purple-600" fill="currentColor" />
+              <p className="text-3xl font-bold text-purple-600">
+                {diffDays} días juntos
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           <FeatureCard
-            icon="📅"
+            icon={<Calendar className="w-10 h-10 text-purple-600" />}
             title="Timeline de Relación"
             description="Documenta todos los momentos especiales en una línea de tiempo interactiva"
           />
           <FeatureCard
-            icon="✅"
+            icon={<CheckSquare className="w-10 h-10 text-purple-600" />}
             title="Bucket List"
             description="Lista de cosas que quieren hacer juntos y marquen las que completen"
           />
           <FeatureCard
-            icon="📸"
+            icon={<Camera className="w-10 h-10 text-purple-600" />}
             title="Álbum Privado"
             description="Galería de fotos segura solo para ustedes dos"
           />
           <FeatureCard
-            icon="💌"
+            icon={<Mail className="w-10 h-10 text-purple-600" />}
             title="Mensajes de Amor"
             description="Envíen notas secretas y palabras de aprecio"
           />
           <FeatureCard
-            icon="🎮"
+            icon={<Gamepad2 className="w-10 h-10 text-purple-600" />}
             title="Juegos para Parejas"
             description="Actividades divertidas para conocerse mejor"
           />
           <FeatureCard
-            icon="📝"
+            icon={<BookOpen className="w-10 h-10 text-purple-600" />}
             title="Diario Compartido"
             description="Escriban sus experiencias y reflexiones juntos"
           />
@@ -87,25 +94,30 @@ export default function Home() {
           </p>
           <a 
             href="/auth/register"
-            className="inline-block bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold transition transform hover:scale-105 shadow-lg cursor-pointer"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold transition transform hover:scale-105 shadow-lg cursor-pointer"
           >
-            Crear Espacio Compartido 💕
+            Crear Espacio Compartido
+            <Heart className="w-5 h-5" fill="currentColor" />
           </a>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="mt-20 py-8 text-center text-purple-700">
-        <p>Hecho con 💜 para parejas especiales</p>
+        <div className="flex items-center justify-center gap-2">
+          <span>Hecho con</span>
+          <Heart className="w-5 h-5 text-purple-600" fill="currentColor" />
+          <span>para parejas especiales</span>
+        </div>
       </footer>
     </div>
   )
 }
 
-function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
-      <div className="text-4xl mb-4">{icon}</div>
+      <div className="mb-4">{icon}</div>
       <h3 className="text-xl font-bold text-purple-900 mb-2">{title}</h3>
       <p className="text-purple-700">{description}</p>
     </div>
