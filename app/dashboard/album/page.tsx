@@ -74,7 +74,7 @@ export default function AlbumPage() {
       if (error) throw error
       setPhotos(data || [])
     } catch (error) {
-      console.error('Error al cargar fotos:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -164,7 +164,7 @@ export default function AlbumPage() {
       setShowUploadForm(false)
       fetchPhotos()
     } catch (error: any) {
-      console.error('Error al subir foto:', error)
+      
       alert('Error al subir la foto: ' + error.message)
     } finally {
       setUploading(false)
@@ -184,7 +184,7 @@ export default function AlbumPage() {
       fetchPhotos()
       setSelectedPhoto(null)
     } catch (error) {
-      console.error('Error al eliminar:', error)
+      
       alert('Error al eliminar la foto')
     }
   }
@@ -255,7 +255,7 @@ export default function AlbumPage() {
       fetchPhotos()
       alert('Foto actualizada correctamente')
     } catch (error) {
-      console.error('Error al actualizar:', error)
+      
       alert('Error al actualizar la foto')
     } finally {
       setUploading(false)

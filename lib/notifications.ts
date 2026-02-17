@@ -34,13 +34,13 @@ export async function sendNotification({
       })
 
     if (error) {
-      console.error('Error enviando notificación:', error)
+      
       return { success: false, error }
     }
 
     return { success: true }
   } catch (error) {
-    console.error('Error enviando notificación:', error)
+    
     return { success: false, error }
   }
 }
@@ -73,7 +73,7 @@ export async function sendNotificationToPartner({
       .limit(1)
 
     if (usersError || !users || users.length === 0) {
-      console.error('Error buscando pareja:', usersError)
+      
       return { success: false, error: 'Pareja no encontrada' }
     }
 
@@ -88,7 +88,7 @@ export async function sendNotificationToPartner({
       link
     })
   } catch (error) {
-    console.error('Error enviando notificación a pareja:', error)
+    
     return { success: false, error }
   }
 }

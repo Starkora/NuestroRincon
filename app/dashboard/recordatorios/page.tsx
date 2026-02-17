@@ -58,7 +58,7 @@ export default function RecordatoriosPage() {
       if (error) throw error
       setReminders(data || [])
     } catch (error) {
-      console.error('Error fetching reminders:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -128,7 +128,7 @@ export default function RecordatoriosPage() {
         icon: <Bell className="w-5 h-5" />,
       })
     } catch (error) {
-      console.error('Error saving reminder:', error)
+      
       toast.error('Error al guardar el recordatorio', {
         duration: 3000,
         position: 'top-center',
@@ -163,7 +163,7 @@ export default function RecordatoriosPage() {
           position: 'top-center',
         })
       } catch (error) {
-        console.error('Error deleting reminder:', error)
+        
         toast.error('Error al eliminar el recordatorio', {
           duration: 3000,
           position: 'top-center',
@@ -182,7 +182,7 @@ export default function RecordatoriosPage() {
       if (error) throw error
       fetchReminders()
     } catch (error) {
-      console.error('Error toggling reminder:', error)
+      
     }
   }
 

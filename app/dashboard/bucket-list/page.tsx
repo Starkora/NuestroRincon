@@ -64,7 +64,7 @@ export default function BucketListPage() {
       if (error) throw error
       setItems(data || [])
     } catch (error) {
-      console.error('Error al cargar items:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -97,7 +97,7 @@ export default function BucketListPage() {
       setShowForm(false)
       fetchItems()
     } catch (error: any) {
-      console.error('Error al guardar item:', error)
+      
       alert('Error al guardar: ' + error.message)
     } finally {
       setSubmitting(false)
@@ -117,7 +117,7 @@ export default function BucketListPage() {
       if (error) throw error
       fetchItems()
     } catch (error) {
-      console.error('Error al actualizar:', error)
+      
       alert('Error al actualizar el item')
     }
   }
@@ -134,7 +134,7 @@ export default function BucketListPage() {
       if (error) throw error
       fetchItems()
     } catch (error) {
-      console.error('Error al eliminar:', error)
+      
       alert('Error al eliminar el item')
     }
   }

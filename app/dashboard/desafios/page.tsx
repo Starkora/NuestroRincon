@@ -60,7 +60,7 @@ export default function DesafiosPage() {
       if (error) throw error
       setChallenges(data || [])
     } catch (error) {
-      console.error('Error al cargar desafíos:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -159,7 +159,7 @@ export default function DesafiosPage() {
         icon: '🎯',
       })
     } catch (error) {
-      console.error('Error al guardar desafío:', error)
+      
       toast.error('Error al guardar el desafío. Intenta nuevamente.', {
         duration: 4000,
         position: 'top-center',
@@ -195,7 +195,7 @@ export default function DesafiosPage() {
         position: 'top-center',
       })
     } catch (error) {
-      console.error('Error al eliminar desafío:', error)
+      
       toast.error('Error al eliminar el desafío', {
         duration: 3000,
         position: 'top-center',
@@ -229,7 +229,7 @@ export default function DesafiosPage() {
         icon: '📈',
       })
     } catch (error) {
-      console.error('Error al actualizar progreso:', error)
+      
       toast.error('Error al actualizar el progreso', {
         duration: 3000,
         position: 'top-center',
@@ -276,7 +276,7 @@ export default function DesafiosPage() {
 
       alert(`¡Felicidades! Has ganado ${points} puntos 🎉`)
     } catch (error) {
-      console.error('Error al otorgar puntos:', error)
+      
     }
   }
 
@@ -305,7 +305,7 @@ export default function DesafiosPage() {
         position: 'top-center',
       })
     } catch (error) {
-      console.error('Error al eliminar desafío:', error)
+      
       toast.error('Error al eliminar el desafío', {
         duration: 3000,
         position: 'top-center',

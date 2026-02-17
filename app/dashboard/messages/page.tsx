@@ -67,7 +67,7 @@ export default function MessagesPage() {
       if (error) throw error
       setMessages(data || [])
     } catch (error) {
-      console.error('Error al cargar mensajes:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -97,7 +97,7 @@ export default function MessagesPage() {
       setShowForm(false)
       fetchMessages()
     } catch (error: any) {
-      console.error('Error al enviar mensaje:', error)
+      
       alert('Error al enviar el mensaje: ' + error.message)
     } finally {
       setSubmitting(false)
@@ -114,7 +114,7 @@ export default function MessagesPage() {
       if (error) throw error
       fetchMessages()
     } catch (error) {
-      console.error('Error al marcar como leído:', error)
+      
     }
   }
 
@@ -130,7 +130,7 @@ export default function MessagesPage() {
       if (error) throw error
       fetchMessages()
     } catch (error) {
-      console.error('Error al eliminar:', error)
+      
       alert('Error al eliminar el mensaje')
     }
   }

@@ -74,7 +74,7 @@ export default function CalendarioPage() {
       if (error) throw error
       setEvents(data || [])
     } catch (error) {
-      console.error('Error al cargar eventos:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -111,7 +111,7 @@ export default function CalendarioPage() {
           .eq('id', editingId)
 
         if (error) {
-          console.error('Error completo:', error)
+          
           throw error
         }
       } else {
@@ -125,7 +125,7 @@ export default function CalendarioPage() {
           ])
 
         if (error) {
-          console.error('Error completo:', error)
+          
           throw error
         }
       }
@@ -138,7 +138,7 @@ export default function CalendarioPage() {
         icon: '📅',
       })
     } catch (error: any) {
-      console.error('Error al guardar evento:', error)
+      
       toast.error(`Error al guardar el evento: ${error.message || 'Intenta nuevamente'}`, {
         duration: 4000,
         position: 'top-center',
@@ -191,7 +191,7 @@ export default function CalendarioPage() {
         position: 'top-center',
       })
     } catch (error) {
-      console.error('Error al eliminar evento:', error)
+      
       toast.error('Error al eliminar el evento', {
         duration: 3000,
         position: 'top-center',

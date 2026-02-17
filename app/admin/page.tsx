@@ -60,7 +60,7 @@ export default function AdminPage() {
       .order('created_at', { ascending: false })
 
     if (pendingError) {
-      console.error('Error fetching pending users:', pendingError)
+      
     } else {
       setPendingUsers(pending || [])
     }
@@ -73,7 +73,7 @@ export default function AdminPage() {
       .order('created_at', { ascending: false })
 
     if (approvedError) {
-      console.error('Error fetching approved users:', approvedError)
+      
     } else {
       setApprovedUsers(approved || [])
     }
@@ -89,7 +89,7 @@ export default function AdminPage() {
       .eq('id', userId)
 
     if (updateError) {
-      console.error('Error approving user:', updateError)
+      
       alert('Error al aprobar el usuario')
       return
     }
@@ -108,7 +108,7 @@ export default function AdminPage() {
       .eq('id', userId)
 
     if (error) {
-      console.error('Error rejecting user:', error)
+      
       alert('Error al rechazar el usuario')
       return
     }
@@ -297,7 +297,7 @@ export default function AdminPage() {
           <div className="space-y-4">
             {approvedUsers.length === 0 ? (
               <div className="bg-white rounded-3xl shadow-xl p-12 text-center">
-                <div className="text-6xl mb-4">📋</div>
+                <div className="text-6xl mb-4"></div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">No hay usuarios aprobados</h3>
                 <p className="text-gray-600">Aún no se han aprobado registros</p>
               </div>

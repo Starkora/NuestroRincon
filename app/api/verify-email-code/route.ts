@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       .single()
 
     if (codeError || !codeData) {
-      console.error('Error buscando código:', codeError)
+      
       return NextResponse.json(
         { error: 'Código inválido o ya utilizado' },
         { status: 400 }
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     })
 
     if (authError) {
-      console.error('Error creando usuario:', authError)
+      
       return NextResponse.json(
         { error: 'Error al crear la cuenta: ' + authError.message },
         { status: 500 }
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     })
 
   } catch (error: any) {
-    console.error('Error verifying email code:', error)
+    
     return NextResponse.json(
       { error: 'Error al verificar el código: ' + error.message },
       { status: 500 }

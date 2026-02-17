@@ -26,12 +26,11 @@ export default function LoginPage() {
       })
 
       if (error) {
-        console.error('Error de login:', error)
+        
         throw error
       }
 
       if (data?.user) {
-        console.log('Login exitoso:', data.user)
         // Limpiar selección de persona anterior
         localStorage.removeItem('current_person')
         // Redirigir a selección de persona
@@ -40,7 +39,7 @@ export default function LoginPage() {
         throw new Error('No se pudo iniciar sesión')
       }
     } catch (error: any) {
-      console.error('Error capturado:', error)
+      
       
       // Mensajes de error más específicos
       if (error.message?.includes('Email not confirmed')) {

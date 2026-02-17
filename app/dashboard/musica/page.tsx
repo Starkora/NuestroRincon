@@ -62,7 +62,7 @@ export default function MusicPlaylistsPage() {
       const current = data?.find(song => song.is_current_song)
       setCurrentSong(current || null)
     } catch (error) {
-      console.error('Error al cargar canciones:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -120,7 +120,7 @@ export default function MusicPlaylistsPage() {
       resetForm()
       fetchSongs()
     } catch (error) {
-      console.error('Error al guardar canción:', error)
+      
       alert(`Error al guardar la canción: ${error instanceof Error ? error.message : 'Error desconocido'}`)
     }
   }
@@ -161,7 +161,7 @@ export default function MusicPlaylistsPage() {
       if (error) throw error
       fetchSongs()
     } catch (error) {
-      console.error('Error al eliminar canción:', error)
+      
       alert('Error al eliminar la canción')
     }
   }
@@ -183,7 +183,7 @@ export default function MusicPlaylistsPage() {
       if (error) throw error
       fetchSongs()
     } catch (error) {
-      console.error('Error al marcar canción actual:', error)
+      
     }
   }
 

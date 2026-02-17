@@ -63,7 +63,7 @@ export default function FloatingChat({ currentUserName }: FloatingChatProps) {
       // Actualizar el contador de no leídos
       setUnreadCount(0)
     } catch (error) {
-      console.error('Error al marcar mensajes como leídos:', error)
+      
     }
   }
 
@@ -80,7 +80,7 @@ export default function FloatingChat({ currentUserName }: FloatingChatProps) {
       const unread = data?.filter(msg => msg.sender_name !== currentUserName).length || 0
       setUnreadCount(unread)
     } catch (error) {
-      console.error('Error al verificar mensajes:', error)
+      
     }
   }
 
@@ -95,7 +95,7 @@ export default function FloatingChat({ currentUserName }: FloatingChatProps) {
       if (error) throw error
       setMessages(data || [])
     } catch (error) {
-      console.error('Error al cargar mensajes:', error)
+      
     }
   }
 
@@ -115,7 +115,7 @@ export default function FloatingChat({ currentUserName }: FloatingChatProps) {
         }
       })
     } catch (error) {
-      console.error('Error al actualizar estado:', error)
+      
     }
   }
 
@@ -137,7 +137,7 @@ export default function FloatingChat({ currentUserName }: FloatingChatProps) {
         setPartnerOnline(diffMinutes < 2)
       }
     } catch (error) {
-      console.error('Error al verificar estado de pareja:', error)
+      
     }
   }
 
@@ -166,7 +166,7 @@ export default function FloatingChat({ currentUserName }: FloatingChatProps) {
       // Recargar mensajes inmediatamente
       await fetchMessages()
     } catch (error: any) {
-      console.error('Error al enviar:', error)
+      
       alert('Error al enviar el mensaje')
     } finally {
       setSending(false)

@@ -62,7 +62,7 @@ export default function MoodTrackerPage() {
       if (error) throw error
       setEntries(data || [])
     } catch (error) {
-      console.error('Error al cargar estados de ánimo:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -88,7 +88,7 @@ export default function MoodTrackerPage() {
         setNotes(data.notes || '')
       }
     } catch (error) {
-      console.error('Error al verificar entrada de hoy:', error)
+      
     }
   }
 
@@ -133,7 +133,7 @@ export default function MoodTrackerPage() {
       fetchEntries()
       checkTodayEntry()
     } catch (error: any) {
-      console.error('Error al guardar:', error)
+      
       if (error.code === '23505') {
         alert('Ya registraste tu ánimo hoy. Puedes editarlo.')
       } else {

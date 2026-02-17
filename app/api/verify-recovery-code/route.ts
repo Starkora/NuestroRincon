@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       .single()
 
     if (codeError || !codeData) {
-      console.error('Error buscando código:', codeError)
+      
       return NextResponse.json(
         { error: 'Código inválido o ya utilizado' },
         { status: 400 }
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
       })
 
       if (sqlError) {
-        console.error('Error SQL:', sqlError)
+        
         // Si la función no existe, usar el método admin
         const { error: adminError } = await supabaseAdmin.auth.admin.updateUserById(
           user.id,
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
         )
         
         if (adminError) {
-          console.error('Error admin API:', adminError)
+          
           return NextResponse.json(
             { error: 'No se pudo actualizar la contraseña' },
             { status: 500 }
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
     })
 
   } catch (error: any) {
-    console.error('Error verifying code:', error)
+    
     return NextResponse.json(
       { error: 'Error: ' + error.message },
       { status: 500 }

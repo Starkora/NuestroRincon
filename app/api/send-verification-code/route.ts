@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       })
 
     if (insertError) {
-      console.error('Error guardando código:', insertError)
+      
       return NextResponse.json(
         { error: 'Error al generar el código de verificación' },
         { status: 500 }
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     })
 
   } catch (error: any) {
-    console.error('Error sending verification code:', error)
+    
     return NextResponse.json(
       { error: 'Error al enviar el código de verificación' },
       { status: 500 }

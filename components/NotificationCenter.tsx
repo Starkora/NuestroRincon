@@ -57,7 +57,7 @@ export default function NotificationCenter({ currentUserId }: NotificationCenter
       .limit(20)
 
     if (error) {
-      console.error('Error fetching notifications:', error)
+      
       return
     }
 

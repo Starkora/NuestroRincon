@@ -62,7 +62,6 @@ export default function ListaDeseosPage() {
       const coupleName = currentUser?.user_metadata?.couple_name
       
       if (!coupleName) {
-        console.log('No couple_name found')
         return
       }
 
@@ -75,7 +74,7 @@ export default function ListaDeseosPage() {
         .limit(1)
 
       if (error) {
-        console.warn('Error finding partner (optional):', error.message)
+        :', error.message)
         return
       }
       
@@ -84,7 +83,7 @@ export default function ListaDeseosPage() {
       }
     } catch (error) {
       // Este error no es crítico, solo lo registramos
-      console.warn('Could not find partner (this is optional):', error)
+      :', error)
     }
   }
 
@@ -135,7 +134,7 @@ export default function ListaDeseosPage() {
       if (error) throw error
       setItems(data || [])
     } catch (error) {
-      console.error('Error al cargar deseos:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -190,7 +189,7 @@ export default function ListaDeseosPage() {
       resetForm()
       fetchItems()
     } catch (error) {
-      console.error('Error al guardar deseo:', error)
+      
       alert(`Error al guardar el deseo: ${error instanceof Error ? error.message : 'Error desconocido'}`)
     } finally {
       setUploadingImage(false)
@@ -235,7 +234,7 @@ export default function ListaDeseosPage() {
       if (error) throw error
       fetchItems()
     } catch (error) {
-      console.error('Error al eliminar deseo:', error)
+      
       alert('Error al eliminar el deseo')
     }
   }
@@ -253,7 +252,7 @@ export default function ListaDeseosPage() {
       if (error) throw error
       fetchItems()
     } catch (error) {
-      console.error('Error al actualizar estado:', error)
+      
     }
   }
 
@@ -267,7 +266,7 @@ export default function ListaDeseosPage() {
       if (error) throw error
       fetchItems()
     } catch (error) {
-      console.error('Error al votar:', error)
+      
     }
   }
 

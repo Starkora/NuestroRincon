@@ -82,7 +82,7 @@ export default function DiaryPage() {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching entries:', error)
+      
       return
     }
 
@@ -111,7 +111,7 @@ export default function DiaryPage() {
       ])
 
     if (error) {
-      console.error('Error creating entry:', error)
+      
       alert('Error al crear la entrada. Por favor intenta de nuevo.')
       return
     }
@@ -135,7 +135,7 @@ export default function DiaryPage() {
       .eq('id', id)
 
     if (error) {
-      console.error('Error deleting entry:', error)
+      
       return
     }
 
@@ -167,7 +167,7 @@ export default function DiaryPage() {
       .eq('id', selectedEntry.id)
 
     if (error) {
-      console.error('Error updating entry:', error)
+      
       alert('Error al actualizar la entrada. Por favor intenta de nuevo.')
       return
     }

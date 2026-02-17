@@ -71,7 +71,6 @@ export default function PreguntaDelDiaPage() {
       const coupleName = currentUser?.user_metadata?.couple_name
       
       if (!coupleName) {
-        console.log('No couple_name found')
         return
       }
 
@@ -84,7 +83,7 @@ export default function PreguntaDelDiaPage() {
         .limit(1)
 
       if (error) {
-        console.warn('Error finding partner:', error.message)
+        
         return
       }
       
@@ -92,7 +91,7 @@ export default function PreguntaDelDiaPage() {
         setPartnerUserId(profiles[0].id)
       }
     } catch (error) {
-      console.error('Error finding partner:', error)
+      
     }
   }
 
@@ -146,7 +145,7 @@ export default function PreguntaDelDiaPage() {
         }
       }
     } catch (error) {
-      console.error('Error loading question:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -171,7 +170,7 @@ export default function PreguntaDelDiaPage() {
         setPartnerAnswer(data)
       }
     } catch (error) {
-      console.error('Error loading partner answer:', error)
+      
     }
   }
 
@@ -187,7 +186,7 @@ export default function PreguntaDelDiaPage() {
       if (error) throw error
       setHistory(data || [])
     } catch (error) {
-      console.error('Error loading history:', error)
+      
     }
   }
 
@@ -231,7 +230,7 @@ export default function PreguntaDelDiaPage() {
         icon: '💭',
       })
     } catch (error) {
-      console.error('Error saving answer:', error)
+      
       toast.error('Error al guardar la respuesta', {
         duration: 3000,
         position: 'top-center',
@@ -265,7 +264,7 @@ export default function PreguntaDelDiaPage() {
         icon: '🎉',
       })
     } catch (error) {
-      console.error('Error adding question:', error)
+      
       toast.error('Error al agregar la pregunta', {
         duration: 3000,
         position: 'top-center',

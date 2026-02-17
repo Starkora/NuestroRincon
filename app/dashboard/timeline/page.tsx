@@ -61,7 +61,7 @@ export default function TimelinePage() {
       if (error) throw error
       setEvents(data || [])
     } catch (error) {
-      console.error('Error al cargar eventos:', error)
+      
     } finally {
       setLoading(false)
     }
@@ -99,7 +99,7 @@ export default function TimelinePage() {
       // Recargar eventos
       fetchEvents()
     } catch (error: any) {
-      console.error('Error al guardar evento:', error)
+      
       alert('Error al guardar el evento: ' + error.message)
     } finally {
       setSubmitting(false)
@@ -118,7 +118,7 @@ export default function TimelinePage() {
       if (error) throw error
       fetchEvents()
     } catch (error) {
-      console.error('Error al eliminar:', error)
+      
       alert('Error al eliminar el evento')
     }
   }
