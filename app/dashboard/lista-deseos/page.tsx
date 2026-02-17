@@ -74,7 +74,6 @@ export default function ListaDeseosPage() {
         .limit(1)
 
       if (error) {
-        :', error.message)
         return
       }
       
@@ -83,7 +82,6 @@ export default function ListaDeseosPage() {
       }
     } catch (error) {
       // Este error no es crítico, solo lo registramos
-      :', error)
     }
   }
 
